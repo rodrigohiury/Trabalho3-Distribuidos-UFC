@@ -10,6 +10,7 @@
             "includePath": [
                 "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32/include",
                 "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32/src",
+                "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32/.pio/libdeps/esp32dev/Nanopb",
                 "/home/eduardo/.platformio/packages/framework-espidf/components/xtensa/esp32/include",
                 "/home/eduardo/.platformio/packages/framework-espidf/components/xtensa/include",
                 "/home/eduardo/.platformio/packages/framework-espidf/components/xtensa/deprecated_include",
@@ -184,6 +185,7 @@
                 "path": [
                     "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32/include",
                     "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32/src",
+                    "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32/.pio/libdeps/esp32dev/Nanopb",
                     "/home/eduardo/.platformio/packages/framework-espidf/components/xtensa/esp32/include",
                     "/home/eduardo/.platformio/packages/framework-espidf/components/xtensa/include",
                     "/home/eduardo/.platformio/packages/framework-espidf/components/xtensa/deprecated_include",

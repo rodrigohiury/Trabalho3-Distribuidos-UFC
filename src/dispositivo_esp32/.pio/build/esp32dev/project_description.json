@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "dispositivo_esp32",
-    "project_version":    "78c507f",
+    "project_version":    "d2926a1-dirty",
     "project_path":       "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32",
     "idf_path":           "/home/eduardo/.platformio/packages/framework-espidf",
     "build_dir":          "/home/eduardo/Documents/Code/Trabalho2-Distribuidos-UFC/src/dispositivo_esp32/.pio/build/esp32dev",
