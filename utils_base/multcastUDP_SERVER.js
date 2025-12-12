@@ -5,7 +5,8 @@
 var news = [
     "7895",
     "7895",
-    "7895"
+    "7895",
+    "AAAAI lula"
 ];
 
 
@@ -25,27 +26,27 @@ function broadcastNew() {
 }
 
 
-const Net = require('net');
-const port = 7895;
-const server_ = new Net.Server();
+// const Net = require('net');
+// const port = 7895;
+// const server_ = new Net.Server();
 
-server_.listen(port, function() {
-    console.log(`Servidor conectado na porta ${port}`);
-});
+// server_.listen(port, function() {
+//     console.log(`Servidor conectado na porta ${port}`);
+// });
 
-server_.on('connection', function(socket) {
-    socket.on('data', function(message) {
-    var msg = message.toString();
-    console.log(`Mensagem recebida: ${msg}`);
-    msg = msg.toUpperCase();
-    socket.write(msg);
-    });
+// server_.on('connection', function(socket) {
+//     socket.on('data', function(message) {
+//     var msg = message.toString();
+//     console.log(`Mensagem recebida: ${msg}`);
+//     msg = msg.toUpperCase();
+//     socket.write(msg);
+//     });
 
-    socket.on('end', function() {
-        console.log('Cliente desconectado');
-    });
+//     socket.on('end', function() {
+//         console.log('Cliente desconectado');
+//     });
 
-    socket.on('error', function(err) {
-        console.log(`Erro ocorrido: ${err}`);
-    });
-});
+//     socket.on('error', function(err) {
+//         console.log(`Erro ocorrido: ${err}`);
+//     });
+// });

@@ -60,7 +60,7 @@ server_tcp.on('connection', (socket) => {
                     }
                     json_received = {
                         ip_device: socket.remoteAddress,
-                        port_device: socket.remotePort,
+                        port_device: json.port_device,
                         name_device: json.name_device,
                         status_device: json.status_device,
                         type_device: json.type_device

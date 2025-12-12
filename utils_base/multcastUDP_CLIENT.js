@@ -45,8 +45,6 @@ client.on('message', function (message, remote) {
     PORT_Gateway = Number(message)
     console.log('C: Gateway set to -> ' + IP_Gateway + ':' + PORT_Gateway);
 
-
-
 });
 
 client.bind(PORT);
