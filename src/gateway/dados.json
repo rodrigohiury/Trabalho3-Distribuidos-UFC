@@ -15,8 +15,8 @@
             "type_device": "sensor"
         },
         {
-            "ip_device": "::ffff:127.0.0.1",
-            "port_device": 54890,
+            "ip_device": "localhost",
+            "port_device": 5001,
             "name_device": "Sensor de InfraVermelho",
             "status_device": "ativo",
             "type_device": "sensor"

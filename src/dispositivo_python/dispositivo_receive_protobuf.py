@@ -89,3 +89,4 @@ def receber_acoes_protobuf():
 
 if __name__ == "__main__":
     receber_acoes_protobuf()
+    

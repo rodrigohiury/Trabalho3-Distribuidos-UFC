@@ -6,9 +6,8 @@ PORT = 7890
 
 mensagem = {
     "id_client": "123321",
-    "action_client": "escrever",
-    "name_device": "Lampada Sala",
-    "action": "escrever",
+    "action": "ler",
+    "name_device": "Sensor de InfraVermelho",
     "parametros": {
         "status": "ligado"
     }
