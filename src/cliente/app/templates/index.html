@@ -1,24 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Distributed System Control Panel</title>
+    <title>Cliente do Trabalho 2 de SD</title>
+    <link rel="stylesheet" href="../static/css/style.css" />
   </head>
-  <body>
-    <h1>Node Status</h1>
-    <button onclick="refresh()">Refresh</button>
-    <pre id="status"></pre>
-
-    <script>
-      async function refresh() {
-        const res = await fetch("/status");
-        document.getElementById("status").textContent = JSON.stringify(
-          await res.json(),
-          null,
-          2
-        );
-      }
-    </script>
+  <body class="main">
+    <h1 class="main-title">Gerenciador de Dispositivos</h1>
+    <div class="grid-container">
+      <p class="device-title">Dispositivos Ativos</p>
+      <div id="devices" class="devices"></div>
+    </div>
+    <script type="module" src="../static/js/main.js"></script>
   </body>
 </html>

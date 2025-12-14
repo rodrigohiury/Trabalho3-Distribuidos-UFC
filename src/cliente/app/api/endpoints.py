@@ -1,13 +1,13 @@
-from fastapi import APIRouter
-from app.ds.node import Node
+from fastapi import APIRouter, Request
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
-node = Node()  # example; adapt to your project
+templates = Jinja2Templates(directory="app/templates")
 
-@router.get("/status")
-def get_status():
-    return node.get_state()
+@router.get("/")
+def home(request: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request}
+    )
 
-@router.post("/send")
-def send_message(data: dict):
-    return node.send(data)
