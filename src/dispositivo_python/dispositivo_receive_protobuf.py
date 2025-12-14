@@ -1,84 +1,154 @@
-import socket
-import time
-from dispositivo_pb2 import Requisicao, Resposta, RespostaOk, RespostaErro
+
+import socket, json
+import struct
+from datetime import datetime
+from google.protobuf import json_format
+# from dispositivo_pb2 import Requisicao, Resposta, RespostaOk, RespostaErro
+import dispositivo_pb2 as dispositivo_pb2
 
 IP_DEVICE = "localhost"
 PORT_DEVICE = 5001
 
 
-# ===================== LÓGICA DO DISPOSITIVO =====================
+def carregar_json():
+    with open("dados.json", "r", encoding="utf-8") as f:
+        return json.load(f)
 
-ESTADO_ATUAL = {
-    "status": "desligado",
-    "valor": "0"
-}
+def salvar_json(dados):
+    with open("dados.json", "w", encoding="utf-8") as f:
+        json.dump(dados, f, indent=4, ensure_ascii=False)
 
 
-def executar_operacao(req: Requisicao) -> Resposta:
-    resposta = Resposta()
+def recv_all(sock, n):
+    dados = b""
+    while len(dados) < n:
+        pacote = sock.recv(n - len(dados))
+        if not pacote:
+            raise ConnectionError("Conexão encerrada")
+        dados += pacote
+    return dados
 
+
+def enviar_protobuf(sock, mensagem):
+    """Serializa a mensagem protobuf e envia com prefixo de tamanho."""
     try:
-        operacao = req.operacao.operacao
+        payload = mensagem.SerializeToString()
+        header = struct.pack(">I", len(payload))
+        sock.sendall(header + payload)
+    except Exception as e:
+        print("Erro ao enviar mensagem:", e)
+        raise
 
-        # ---------- LER ----------
-        if operacao == req.operacao.LER:
-            resposta.ok.comando = "LER"
-            resposta.ok.dados["status"] = ESTADO_ATUAL["status"]
-            resposta.ok.dados["valor"] = ESTADO_ATUAL["valor"]
-            resposta.ok.timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-            return resposta
+def receber_protobuf(sock, classe):
+    """Recebe resposta prefixada e converte para objeto protobuf."""
+    try:
+        header = recv_all(sock, 4)
+        if not header:
+            return None
 
-        # ---------- ESCREVER ----------
-        elif operacao == req.operacao.ESCREVER:
-            for chave, valor in req.operacao.parametros.items():
-                ESTADO_ATUAL[chave] = valor
+        tamanho = struct.unpack(">I", header)[0]
+        payload = recv_all(sock, tamanho)
 
-            resposta.ok.comando = "ESCREVER"
-            resposta.ok.dados.update(ESTADO_ATUAL)
-            resposta.ok.timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-            return resposta
-
-        else:
-            raise ValueError("Operação desconhecida")
+        msg = classe()
+        msg.ParseFromString(payload)
+        return msg
 
     except Exception as e:
-        resposta.erro.comando = "ERRO"
-        resposta.erro.mensagem = str(e)
-        resposta.erro.timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        return resposta
+        print("Erro ao receber resposta:", e)
+        raise
 
 
-# ===================== TCP SERVER =====================
 
-def receber_acoes_protobuf():
-    servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    servidor.bind((IP_DEVICE, PORT_DEVICE))
-    servidor.listen(1)
+
+def tratar_escrita(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
+    dados = carregar_json()
+    info = req.escrever.info_device
+
+    # valida tipo do dispositivo
+    if dados["type_device"] == "sensor":
+        return erro("ESCREVER", "Sensores não aceitam escrita")
+
+    # atualiza status
+    if info.status:
+        dados["status"] = info.status
+
+    # atualiza parâmetros
+    for k, v in info.parametros.items():
+        dados["parametros"][0][k] = v
+
+    salvar_json(dados)
+
+    resposta = dispositivo_pb2.Resposta()
+    ok = resposta.ok
+    ok.comando = "ESCREVER"
+    ok.dados["resultado"] = "Dispositivo atualizado com sucesso"
+    ok.dados["timestamp"] = datetime.now().isoformat()
+
+    return resposta
+
+
+
+def tratar_requisicao(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
+    tipo = req.WhichOneof("tipo")
+
+    if tipo == "ler":
+        return tratar_leitura(req)
+
+    elif tipo == "escrever":
+        return tratar_escrita(req)
+
+    else:
+        return erro("REQUISICAO_INVALIDA", "Tipo de requisição não reconhecido")
+    
+
+
+def tratar_leitura(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
+    dados = carregar_json()
+
+    resposta = dispositivo_pb2.Resposta()
+    ok = resposta.ok
+
+    ok.comando = "LER"
+    ok.dados["timestamp"] = datetime.now().isoformat()
+
+    device = ok.device_info
+    device.name_device = dados["name_device"]
+    device.ip_device = dados["ip_device"]
+    device.port_device = dados["port_device"]
+    device.status = dados["status"]
+    device.type_device = dados["type_device"]
+
+    for k, v in dados["parametros"][0].items():
+        device.parametros[k] = v
+
+    return resposta
+
+
+def erro(comando, mensagem):
+    resposta = dispositivo_pb2.Resposta()
+    resposta.erro.comando = comando
+    resposta.erro.mensagem = mensagem
+    resposta.erro.detalhes["timestamp"] = datetime.now().isoformat()
+    return resposta
+
+def escutar_comandos_tcp():
+    socket_device = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_device.bind((IP_DEVICE, PORT_DEVICE))
+    socket_device.listen(1)
 
     print(f"Dispositivo escutando em {IP_DEVICE}:{PORT_DEVICE}")
 
     while True:
-        conn, addr = servidor.accept()
+        conn, addr = socket_device.accept()
         print("Conexão recebida de:", addr)
 
         try:
-            data = conn.recv(4096)
-            if not data:
-                conn.close()
-                continue
+            req = receber_protobuf(conn, dispositivo_pb2.Requisicao)
+            print("Requisição recebida:")
+            print(req)
 
-            # ---------- DECODIFICA PROTOBUF ----------
-            requisicao = Requisicao()
-            requisicao.ParseFromString(data)
-
-            print("Requisição recebida (PROTOBUF):")
-            print(requisicao)
-
-            # ---------- EXECUTA ----------
-            resposta = executar_operacao(requisicao)
-
-            # ---------- ENVIA ----------
-            conn.sendall(resposta.SerializeToString())
+            resp = tratar_requisicao(req)
+            enviar_protobuf(conn, resp)
 
         except Exception as e:
             print("Erro:", e)
@@ -86,7 +156,7 @@ def receber_acoes_protobuf():
         finally:
             conn.close()
 
-
+ 
 if __name__ == "__main__":
-    receber_acoes_protobuf()
-    
+    escutar_comandos_tcp()
+     

@@ -3,8 +3,6 @@ import struct
 
 from dispositivo_info import enviar_info
 
-
-
 IP_Gateway = ""
 PORT_Gateway = 7895
 
@@ -42,7 +40,3 @@ def start_udp_client():
         enviar_info( IP_Gateway, PORT_Gateway)  # no caso isso iria enviar assim que 
                                                # recebesse o ip e porta do gateway via multcast
         
-#         #print(f"C: Gateway set to -> {IP_Gateway}:{PORT_Gateway}")
-
-# if __name__ == "__main__":
-#     start_udp_client()
