@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package gateway;
+
+// REQUISIÇÃO
+message Requisicao {
+  string name_client = 1;
+  string name_device = 2;
+  oneof tipo {
+    RequisicaoLer ler = 3;
+    RequisicaoEscrever escrever = 4;
+    RequisicaoListar listar = 5;
+  }
+}
+
+message RequisicaoLer {
+  ComandoOperacao operacao = 1; // sempre LER
+}
+
+message RequisicaoEscrever {
+  ComandoOperacao operacao = 1; // sempre ESCREVER
+  InfoDeviceClient info_device = 2;
+}
+
+message RequisicaoListar {
+  ComandoOperacao operacao = 1;
+}
+
+// COMANDOS
+message ComandoOperacao {
+  enum TipoOperacao {
+    LER = 0;
+    ESCREVER = 1;
+    LISTAR = 2;
+  }
+  TipoOperacao operacao = 1;
+}
+
+// DADOS DE ENTRADA
+message InfoDeviceClient {
+  string status = 1;
+  string type_device = 2;
+  map<string, string> parametros = 3;
+}
+
+// DADOS DE LEITURA
+message ReadDevice {
+  string name_device = 1;
+  string ip_device = 2;
+  uint32 port_device = 3;
+  string status = 4;
+  string type_device = 5;
+  map<string, string> parametros = 6;
+}
+
+
+// Dados de listagem
+message ListDevice {
+  string name_device = 1;
+  string ip_device = 2;
+  uint32 port_device = 3;
+  string type_device = 4;
+}
+
+
+// RESPOSTA
+message Resposta {
+  oneof tipo {
+    RespostaOk ok = 1;
+    RespostaErro erro = 2;
+  }
+}
+
+message RespostaOk {
+  string comando = 1;
+  map<string, string> dados = 2;
+  ReadDevice device_info = 3;
+}
+
+message RespostaOkLista {
+  string comando = 1;
+  map<string, string> dados = 2;
+  repeated ListDevice devices = 3;
+}
+
+message RespostaErro {
+  string comando = 1;
+  string mensagem = 2;
+  map<string, string> detalhes = 3;
+}

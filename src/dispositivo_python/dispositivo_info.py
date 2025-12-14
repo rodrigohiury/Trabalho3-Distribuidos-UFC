@@ -51,6 +51,19 @@ def enviar_info( ip: str, port: int,):
 
     data = carregar_json("Trabalho_2/Trabalho2-Distribuidos-UFC/src/dispositivo_python/dados.json")
 
+    # // DADOS DE LEITURA
+    # message ReadDevice {
+    #   string name_device = 1;
+    #   string ip_device = 2;
+    #   uint32 port_device = 3;
+    #   string status = 4;
+    #   string type_device = 5;
+    #   map<string, string> parametros = 6;
+    # }
+
+
     data = json.dumps(data)
     enviar_mensagem(servico_device, data)
     receber_resposta(servico_device)
+
+enviar_info( "localhost", 7895)

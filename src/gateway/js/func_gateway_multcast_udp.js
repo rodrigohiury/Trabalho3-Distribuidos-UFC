@@ -54,7 +54,7 @@ function criarBroadcasterUDP({
 }
 
 criarBroadcasterUDP({
-  tcpPort: "7895"
+  tcpPort: "7895",
 });
 
 // module.exports = { criarBroadcasterUDP };

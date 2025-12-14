@@ -3,8 +3,10 @@ import socket, json
 import struct
 from datetime import datetime
 from google.protobuf import json_format
-# from dispositivo_pb2 import Requisicao, Resposta, RespostaOk, RespostaErro
-import dispositivo_pb2 as dispositivo_pb2
+# from proto_dispositivo_pb2 import Requisicao, Resposta, RespostaOk, RespostaErro
+import proto_dispositivo_pb2 as proto_dispositivo_pb2
+from google.protobuf.json_format import MessageToJson
+
 
 IP_DEVICE = "localhost"
 PORT_DEVICE = 5001
@@ -51,6 +53,7 @@ def receber_protobuf(sock, classe):
 
         msg = classe()
         msg.ParseFromString(payload)
+        print(f"msg {msg}")
         return msg
 
     except Exception as e:
@@ -60,25 +63,30 @@ def receber_protobuf(sock, classe):
 
 
 
-def tratar_escrita(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
+def tratar_escrita(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
     info = req.escrever.info_device
 
     # valida tipo do dispositivo
-    if dados["type_device"] == "sensor":
-        return erro("ESCREVER", "Sensores não aceitam escrita")
+    if not(dados["type_device"] == "sensor"):
+        # atualiza parâmetros
+        for k, v in info.parametros.items():
+            dados["parametros"][0][k] = v
+
+
+        # return erro("ESCREVER", "Sensores não aceitam escrita")
 
     # atualiza status
     if info.status:
         dados["status"] = info.status
 
     # atualiza parâmetros
-    for k, v in info.parametros.items():
-        dados["parametros"][0][k] = v
+    # for k, v in info.parametros.items():
+    #     dados["parametros"][0][k] = v
 
     salvar_json(dados)
 
-    resposta = dispositivo_pb2.Resposta()
+    resposta = proto_dispositivo_pb2.Resposta()
     ok = resposta.ok
     ok.comando = "ESCREVER"
     ok.dados["resultado"] = "Dispositivo atualizado com sucesso"
@@ -88,7 +96,7 @@ def tratar_escrita(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
 
 
 
-def tratar_requisicao(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
+def tratar_requisicao(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     tipo = req.WhichOneof("tipo")
 
     if tipo == "ler":
@@ -102,10 +110,10 @@ def tratar_requisicao(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Respos
     
 
 
-def tratar_leitura(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
+def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
 
-    resposta = dispositivo_pb2.Resposta()
+    resposta = proto_dispositivo_pb2.Resposta()
     ok = resposta.ok
 
     ok.comando = "LER"
@@ -125,13 +133,13 @@ def tratar_leitura(req: dispositivo_pb2.Requisicao) -> dispositivo_pb2.Resposta:
 
 
 def erro(comando, mensagem):
-    resposta = dispositivo_pb2.Resposta()
+    resposta = proto_dispositivo_pb2.Resposta()
     resposta.erro.comando = comando
     resposta.erro.mensagem = mensagem
     resposta.erro.detalhes["timestamp"] = datetime.now().isoformat()
     return resposta
 
-def escutar_comandos_tcp():
+def socket_tcp_device_receive():
     socket_device = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_device.bind((IP_DEVICE, PORT_DEVICE))
     socket_device.listen(1)
@@ -143,9 +151,9 @@ def escutar_comandos_tcp():
         print("Conexão recebida de:", addr)
 
         try:
-            req = receber_protobuf(conn, dispositivo_pb2.Requisicao)
+            req = receber_protobuf(conn, proto_dispositivo_pb2.Requisicao)
             print("Requisição recebida:")
-            print(req)
+            print(MessageToJson(req))
 
             resp = tratar_requisicao(req)
             enviar_protobuf(conn, resp)
@@ -158,5 +166,5 @@ def escutar_comandos_tcp():
 
  
 if __name__ == "__main__":
-    escutar_comandos_tcp()
+    socket_tcp_device_receive()
      
