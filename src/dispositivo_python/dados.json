@@ -1,0 +1,14 @@
+{
+    "name_device": "Sensor de InfraVermelho",
+    "ip_device": "localhost",
+    "port_device": 5001,
+    "status": "ligado-",
+    "type_device": "sensor",
+    "value_device": 432,
+    "parametros": [
+        {
+            "temperatura": "12°",
+            "movimentacao": "sim"
+        }
+    ]
+}

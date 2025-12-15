@@ -1,146 +1,90 @@
-// Definição do protocolo usando Protocol Buffers
-// Demonstra serialização binária eficiente para sistemas distribuídos
-
 syntax = "proto3";
 
-package trabalho2_distribuidos;
+package cidade;
 
-// Mensagem base para requisições
-message Requisicao {
-  oneof tipo {
-    ComandoAuth auth = 1;
-    ComandoOperacao operacao = 2;
-    ComandoInfo info = 3;
-    ComandoLogout logout = 4;
-  }
+// ----------------------------------------------------------------
+// 1. DESCOBERTA (UDP Multicast: 224.0.0.1:5000)
+// ----------------------------------------------------------------
+
+// Mensagem que os dispositivos enviam ao receber o trigger "WHO_IS_OUT_THERE"
+message DiscoveryResponse {
+    string id = 1;          // Ex: "ESP32_ALARM_01", "VIRTUAL_TEMP_01"
+    string tipo = 2;        // Ex: "ALARM_SYSTEM", "SENSOR_TEMPERATURA"
+    string ip = 3;          // IP do dispositivo para o Gateway saber onde conectar
+    int32 porta_tcp = 4;    // Porta onde o dispositivo ouve comandos
 }
 
-// Mensagem base para respostas
-message Resposta {
-  oneof tipo {
-    RespostaOk ok = 1;
-    RespostaErro erro = 2;
-  }
+// ----------------------------------------------------------------
+// 2. DADOS DOS SENSORES (UDP Unicast -> Gateway:5000)
+// ----------------------------------------------------------------
+
+message SensorData {
+    string id = 1;          // Quem está enviando
+    int64 timestamp = 2;    // Momento da leitura
+    
+    // Usamos 'oneof' para economizar bytes e organizar os dados
+    oneof leitura {
+        float temperatura = 3;      // Para o sensor Python
+        float umidade = 4;          // Para o sensor Node.js
+        AmbienteData ambiente = 5;  // Para o ESP32 (Som + Luz + Status)
+    }
 }
 
-// Comando de autenticação
-message ComandoAuth {
-  string aluno_id = 1;
-  string timestamp_cliente = 2;
+message AmbienteData {
+    float nivel_som = 1;
+    float luminosidade = 2;
+    bool alarme_ativo = 3;  // Estado do LED/Alarme
 }
 
-// Comando de operação
-message ComandoOperacao {
-  string token = 1;
-  string operacao = 2;
-  map<string, string> parametros = 3;
+// ----------------------------------------------------------------
+// 3. COMUNICAÇÃO TCP (Cliente <-> Gateway <-> Dispositivos)
+// ----------------------------------------------------------------
+
+// Wrapper geral para qualquer mensagem TCP para facilitar o decode
+message TcpMessage {
+    string id_origem = 1;    // Quem mandou? (Ex: "CLIENTE_WEB", "GATEWAY")
+    string id_destino = 2;   // Para quem? (Ex: "ESP32_ALARM_01", "GATEWAY")
+    
+    oneof payload {
+        Command comando = 3;             // Mudar algo
+        CommandResponse resposta = 4;    // Confirmar que mudou
+        GetDeviceList listar_todos = 5;  // Cliente pede lista
+        DeviceList lista_atual = 6;      // Gateway entrega lista
+    }
 }
 
-// Comando de informação
-message ComandoInfo {
-  string tipo = 1; // "basico", "operacoes", "estatisticas"
+// Comando Genérico (Cobre os requisitos de configuração do PDF)
+message Command {
+    // Tipo de ação: "SET", "GET", "ACTION"
+    string type = 1; 
+    
+    // O que mudar? Ex: "led", "resolucao", "intervalo_leitura"
+    string param = 2; 
+    
+    // Novo valor (enviado como string para flexibilidade: "ON", "4k", "15.5")
+    string value = 3; 
 }
 
-// Comando de logout
-message ComandoLogout {
-  string token = 1;
+// Confirmação de execução
+message CommandResponse {
+    string status = 1;       // "OK", "ERRO"
+    string mensagem = 2;     // Detalhe do erro ou sucesso
 }
 
-// Resposta de sucesso
-message RespostaOk {
-  string comando = 1;
-  map<string, string> dados = 2;
-  string timestamp = 3;
+// Cliente pede a lista de dispositivos
+message GetDeviceList {
+    bool apenas_ativos = 1;
 }
 
-// Resposta de erro
-message RespostaErro {
-  string comando = 1;
-  string mensagem = 2;
-  string timestamp = 3;
-  map<string, string> detalhes = 4;
+// Gateway responde com o snapshot da rede
+message DeviceList {
+    repeated DeviceInfo dispositivos = 1;
 }
 
-// Estruturas de dados específicas
-
-// Dados de autenticação bem-sucedida
-message DadosAuth {
-  string token = 1;
-  string nome = 2;
-  string matricula = 3;
-  string timestamp = 4;
-  int64 timeout_segundos = 5;
-}
-
-// Resultado de operação Echo
-message ResultadoEcho {
-  string mensagem_original = 1;
-  string mensagem_eco = 2;
-  string hash_md5 = 3;
-  int32 tamanho_mensagem = 4;
-  string timestamp_servidor = 5;
-}
-
-// Resultado de operação Soma
-message ResultadoSoma {
-  repeated double numeros_originais = 1;
-  int32 quantidade = 2;
-  double soma = 3;
-  double media = 4;
-  double maximo = 5;
-  double minimo = 6;
-  string timestamp_calculo = 7;
-}
-
-// Resultado de operação Timestamp
-message ResultadoTimestamp {
-  double timestamp_unix = 1;
-  string timestamp_iso = 2;
-  string timestamp_formatado = 3;
-  int32 ano = 4;
-  int32 mes = 5;
-  int32 dia = 6;
-  int32 hora = 7;
-  int32 minuto = 8;
-  int32 segundo = 9;
-  int32 microsegundo = 10;
-}
-
-// Status do servidor
-message StatusServidor {
-  string status = 1;
-  int64 operacoes_processadas = 2;
-  int32 sessoes_ativas = 3;
-  double tempo_ativo = 4;
-  string versao = 5;
-  map<string, string> estatisticas_banco = 6;
-  map<string, string> sessoes_detalhes = 7;
-  map<string, double> metricas = 8;
-}
-
-// Informações do servidor
-message InfoServidor {
-  string nome = 1;
-  string versao = 2;
-  string host = 3;
-  int32 port = 4;
-  string protocolo = 5;
-  string formato = 6;
-  repeated string operacoes_disponiveis = 7;
-  int32 total_operacoes = 8;
-}
-
-// Histórico de operações
-message HistoricoOperacao {
-  string operacao = 1;
-  map<string, string> parametros = 2;
-  map<string, string> resultado = 3;
-  string timestamp = 4;
-  bool sucesso = 5;
-}
-
-message HistoricoAluno {
-  string aluno_id = 1;
-  repeated HistoricoOperacao operacoes = 2;
-  int32 total = 3;
+message DeviceInfo {
+    string id = 1;
+    string tipo = 2;
+    string ip = 3;
+    bool ativo = 4;
+    int64 ultima_vez_visto = 5;
 }

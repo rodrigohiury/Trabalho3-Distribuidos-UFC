@@ -1,0 +1,24 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dgram": "^1.0.1",
+    "fs": "^0.0.1-security",
+    "google-protobuf": "^4.0.1",
+    "net": "^1.0.2",
+    "protobufjs": "^7.5.4",
+    "update": "^0.4.2"
+  },
+  "devDependencies": {
+    "grpc-tools": "^1.13.1"
+  }
+}
