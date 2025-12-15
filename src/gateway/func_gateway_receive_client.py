@@ -76,6 +76,7 @@ def receber_protobuf(sock, classe):
 
 def tratar_escrita(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
+    print("Dados carregados para escrita:", dados)
     nome_dispositivo = req.name_device
 
     ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
@@ -99,6 +100,7 @@ def tratar_escrita(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_p
 
 def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
+    print("Dados carregados para leitura:", dados)
     nome_dispositivo = req.name_device
 
     ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
@@ -119,6 +121,7 @@ def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_p
 
 def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resposta:
     dados = carregar_json()
+    print("Dados carregados para listagem:", dados)
 
     # Cria a mensagem Protobuf
     resposta = proto_gateway_pb2.RespostaOkLista()
@@ -127,28 +130,45 @@ def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resp
     # (opcional) dados extras
     resposta.dados["total"] = str(len(dados["dispositivos"]))
 
+    print("Preenchendo dispositivos na resposta...")
     # Preenche a lista de devices
     for item in dados.get("dispositivos", []):
+        print("---------------------------------------------------------------------")
+        print("Item:", item)
+        print("add")
         device = resposta.devices.add()
+        print("name")
         device.name_device = item.get("name_device", "")
+        print("ip")
         device.ip_device = item.get("ip_device", "")
+        print("port")
         device.port_device = int(item.get("port_device", 0))
+        print("type")
         device.type_device = item.get("type_device", "")
-
+        print("status")
+        device.status = item.get("status_device", "")
+        print("parametros")
+        device.parametros.update(item.get("parametros", {}))
+    
+    print("Resposta de listagem criada:", resposta)
     return resposta
 
 
+
 def tratar_requisicao(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resposta:
+    print("Tratando requisição...")
     tipo = req.WhichOneof("tipo")
+    print(f"Tipo de requisição: {tipo}")
 
     if tipo == "ler":
+        print("Req de leitura")
         return tratar_leitura(req)
-
     elif tipo == "escrever":
+        print("Req de escrita")
         return tratar_escrita(req)
     elif tipo == "listar":
+        print("Req de listagem")
         return tratar_listagem(req)
-
     else:
         return erro("REQUISICAO_INVALIDA", "Tipo de requisição não reconhecido")
     
