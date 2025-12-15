@@ -1,0 +1,25 @@
+{
+    "dispositivos": [
+        {
+            "ip_device": "::ffff:127.0.0.1",
+            "port_device": 48228,
+            "name_device": "Sensor de Umidade",
+            "status_device": "desligado",
+            "type_device": "sensor"
+        },
+        {
+            "ip_device": "::ffff:127.0.0.1",
+            "port_device": 33830,
+            "name_device": "Sensor de Temperatura",
+            "status_device": "ativo",
+            "type_device": "sensor"
+        },
+        {
+            "ip_device": "localhost",
+            "port_device": 5001,
+            "name_device": "Sensor de InfraVermelho",
+            "status_device": "ativo",
+            "type_device": "sensor"
+        }
+    ]
+}

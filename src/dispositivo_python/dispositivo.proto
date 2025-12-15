@@ -1,0 +1,73 @@
+// Definição do protocolo usando Protocol Buffers
+// Demonstra serialização binária eficiente para sistemas distribuídos
+
+syntax = "proto3";
+
+package dispositivo;
+
+// Mensagem base para requisições
+message Requisicao {
+  oneof tipo {
+    ComandoOperacao operacao = 2;
+    ComandoInfo info = 3;
+  }
+}
+
+// Comando de operação
+message ComandoOperacao {
+  enum TipoOperacao {
+    LER = 0;
+    ESCREVER = 1;
+  }
+  TipoOperacao operacao = 2;
+  map<string, string> parametros = 3;   // {"parametro": "mensagem"} -> {chave: valor}
+                                        // ex: ar-condicionado
+                                        // { "temperatura":    "19"   } -> nesse caso seria passado a temperatura como parametro para atuador
+                                        // { "status"     :  "ligado" } 
+}
+
+// Comando de informação
+message ComandoInfo {
+  string tipo = 1; // "basico", "operacoes", "estatisticas"
+  string ip_device = 2;
+  uint32 port_device = 3;
+  string status = 4;
+  string type_device = 5;
+  map<string, string> type_input_parametros = 6;  // ex: 
+                                                  // parametros_possiveis: {
+                                                  // "mudar": "VERDE|AZUL|VERMELHO" ou
+                                                  // "status": "LIGADO|DESLIGADO"  }
+}
+
+// Resultado de operação em dispositivo que será enviado como resposta para o gateway que irá repassar para cliente
+message ResultadoAcao {  // resposta após ler ou escrever em dispositivos
+  string name_device = 1;
+  string value_device = 2;
+  string status_device = 3;
+  int32 tamanho_mensagem = 4;
+}
+
+//--- daqui para baixo é padrão
+
+// Mensagem base para respostas
+message Resposta {
+  oneof tipo {
+    RespostaOk ok = 1;
+    RespostaErro erro = 2;
+  }
+}
+
+// Resposta de sucesso
+message RespostaOk {
+  string comando = 1;
+  map<string, string> dados = 2;
+  string timestamp = 3;
+}
+
+// Resposta de erro
+message RespostaErro {
+  string comando = 1;
+  string mensagem = 2;
+  string timestamp = 3;
+  map<string, string> detalhes = 4;
+}

@@ -1,0 +1,11 @@
+{
+    "ip_device": "localhost",
+    "port_device": 5001,
+    "action": "save_device",
+    "name_device": "Sensor de InfraVermelho",
+    "status_device": "ativo",
+    "type_device": "sensor",
+    "value_device": 432,
+    "parametros": "X, Y ou Z"
+
+}
