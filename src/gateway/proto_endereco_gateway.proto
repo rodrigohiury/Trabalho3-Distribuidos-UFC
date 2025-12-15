@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package endereco_gateway;
+
+message EnderecoInfo {
+  string id_gateway_for_save_info = 1;
+  string port_gateway_for_save_info = 2;
+}

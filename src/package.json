@@ -15,7 +15,8 @@
     "fs": "^0.0.1-security",
     "google-protobuf": "^4.0.1",
     "net": "^1.0.2",
-    "protobufjs": "^7.5.4"
+    "protobufjs": "^7.5.4",
+    "update": "^0.4.2"
   },
   "devDependencies": {
     "grpc-tools": "^1.13.1"
