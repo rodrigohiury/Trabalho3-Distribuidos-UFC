@@ -80,11 +80,15 @@ message RespostaOk {
 message RespostaOkLista {
   string comando = 1;
   map<string, string> dados = 2;
-  repeated ListDevice devices = 3;
+  repeated ReadDevice devices = 3;
 }
 
 message RespostaErro {
   string comando = 1;
   string mensagem = 2;
   map<string, string> detalhes = 3;
+}
+
+service GatewayService {
+  rpc EnviarRequisicao (Requisicao) returns (Resposta);
 }
