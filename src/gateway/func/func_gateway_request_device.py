@@ -37,6 +37,9 @@ def enviar_requisicao_tcp(
         parametros: dict = None,
         timeout: int = 5
     ):
+    from proto.proto_dispositivo_pb2 import proto_dispositivo_pb2 as proto_dispositivo_pb2
+    from proto.proto_endereco_gateway_pb2 import proto_gateway_pb2 as proto_gateway_pb2
+    from google.protobuf.json_format import MessageToJson
     """
     operacao: 'LER' ou 'ESCREVER'
     """

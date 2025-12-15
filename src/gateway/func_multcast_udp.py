@@ -3,7 +3,7 @@ import time
 import proto_endereco_gateway_pb2 as pb
 
 
-def criar_multcast_broadcaster_udp(
+def multcast_broadcaster_udp(
     ip_gateway="localhost",
     port_gateway="7895",
     multicast_ip="224.1.1.1",
@@ -49,7 +49,7 @@ def criar_multcast_broadcaster_udp(
 
 
 if __name__ == "__main__":
-    criar_multcast_broadcaster_udp(
+    multcast_broadcaster_udp(
         ip_gateway="localhost do gostosim",
         port_gateway="7895"
     )
