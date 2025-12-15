@@ -46,6 +46,7 @@ def enviar_protobuf(sock, mensagem):
     """Serializa a mensagem protobuf e envia com prefixo de tamanho."""
     try:
         payload = mensagem.SerializeToString()
+        print(f"Payload a ser enviado: {payload}")
         header = struct.pack(">I", len(payload))
         sock.sendall(header + payload)
     except Exception as e:
@@ -139,16 +140,22 @@ def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resp
         device = resposta.devices.add()
         print("name")
         device.name_device = item.get("name_device", "")
+        print(device.name_device)
         print("ip")
         device.ip_device = item.get("ip_device", "")
+        print(device.ip_device)
         print("port")
         device.port_device = int(item.get("port_device", 0))
+        print(device.port_device)
         print("type")
         device.type_device = item.get("type_device", "")
+        print(device.type_device)
         print("status")
-        device.status = item.get("status_device", "")
+        device.status = item.get("status", "")
+        print(device.status)
         print("parametros")
         device.parametros.update(item.get("parametros", {}))
+        print(device.parametros)
     
     print("Resposta de listagem criada:", resposta)
     return resposta
@@ -199,6 +206,9 @@ def socket_receiv_client_request_device():
             print(MessageToJson(req))
 
             resp = tratar_requisicao(req)
+            print("----------------------------------------------------")
+            print("Enviando resposta:")
+            print(resp)
             enviar_protobuf(conn, resp)
 
         except Exception as e:

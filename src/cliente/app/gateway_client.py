@@ -48,6 +48,7 @@ class GatewayClient:
         print("\nResposta recebida:")
 
         print("\nDispositivos:")
+        print(resp)
 
 
         sock.close()
@@ -73,7 +74,9 @@ class GatewayClient:
                 "name": d.name_device,
                 "ip": d.ip_device,
                 "port": d.port_device,
-                "type": d.type_device
+                "type": d.type_device,
+                "status": d.status,
+                "parametros": dict(d.parametros)
             }
             for d in resp.devices
         ]
