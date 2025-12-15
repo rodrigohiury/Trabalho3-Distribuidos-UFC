@@ -1,6 +1,10 @@
 import socket
 import time
-import proto_endereco_gateway_pb2 as pb
+import sys
+import os
+
+# sys.path.append("../")
+import proto.proto_endereco_gateway_pb2 as pb
 
 
 def criar_multcast_broadcaster_udp(
@@ -37,7 +41,7 @@ def criar_multcast_broadcaster_udp(
             sock.sendto(payload, (multicast_ip, multicast_port))
 
             print(
-                f"Enviado → gateway={ip_gateway} porta={port_gateway}"
+                f"Enviado mensagem multcast\nip gateway={ip_gateway} porta={port_gateway}"
             )
 
             time.sleep(interval_sec)
@@ -50,6 +54,6 @@ def criar_multcast_broadcaster_udp(
 
 if __name__ == "__main__":
     criar_multcast_broadcaster_udp(
-        ip_gateway="localhost do gostosim",
+        ip_gateway="localhost",
         port_gateway="7895"
     )

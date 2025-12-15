@@ -7,9 +7,9 @@ from google.protobuf import json_format
 import sys
 import os
 
-sys.path.append("../")
-from proto_.proto_dispositivo_pb2 import proto_dispositivo_pb2 as proto_dispositivo_pb2
-from proto_.proto_endereco_gateway_pb2 import proto_gateway_pb2 as proto_gateway_pb2
+# sys.path.append("../")
+from proto.proto_dispositivo_pb2 import proto_dispositivo_pb2 as proto_dispositivo_pb2
+from proto.proto_endereco_gateway_pb2 import proto_gateway_pb2 as proto_gateway_pb2
 from google.protobuf.json_format import MessageToJson
 
 from func_gateway_request_device import enviar_requisicao_tcp as enviar_req_device

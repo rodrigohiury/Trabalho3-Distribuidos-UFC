@@ -1,0 +1,67 @@
+{
+    "dispositivos": [
+        {
+            "ip_device": "127.0.0.1",
+            "port_device": 48228,
+            "name_device": "Sensor de Umidade",
+            "status": "desligado",
+            "type_device": "sensor",
+            "pamametros": [
+                {}
+            ]
+        },
+        {
+            "ip_device": "::ffff:127.0.0.1",
+            "port_device": 33830,
+            "name_device": "Sensor de Temperatura",
+            "status": "ativo",
+            "type_device": "sensor",
+            "pamametros": [
+                {}
+            ]
+        },
+        {
+            "ip_device": "localhost",
+            "port_device": 5001,
+            "name_device": "Sensor de InfraVermelho",
+            "status": "ativo",
+            "type_device": "sensor",
+            "pamametros": [
+                {}
+            ]
+        },
+        {
+            "name_device": "Porta Automatica",
+            "ip_device": "localhost",
+            "port_device": 5003,
+            "status": "ativo",
+            "type_device": "atuador",
+            "parametros": [
+                {}
+            ]
+        },
+        {
+            "name_device": "Luz Quarto",
+            "ip_device": "localhost",
+            "port_device": 5003,
+            "status": "ativo",
+            "type_device": "atuador",
+            "parametros": [
+                {}
+            ]
+        },
+        {
+            "name_device": "Sensor de Fumaca",
+            "ip_device": "localhost",
+            "port_device": 5001,
+            "status": "ativo",
+            "type_device": "sensor",
+            "parametros": [
+                {
+                    "movimentacao": "sim",
+                    "temperatura": "12"
+                }
+            ]
+        }
+    ]
+}
