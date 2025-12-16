@@ -170,7 +170,18 @@ def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resp
         device.status = item.get("status", "")
         print(device.status)
         print("parametros")
-        device.parametros.update(item.get("parametros", {}))
+        # parametros pode ser uma lista com dict ou um dict direto
+        params = item.get("parametros", {})
+        if isinstance(params, list) and len(params) > 0:
+            # Se for lista, pega o primeiro dict e mescla todos
+            merged_params = {}
+            for p in params:
+                if isinstance(p, dict):
+                    merged_params.update(p)
+            device.parametros.update(merged_params)
+        elif isinstance(params, dict):
+            # Se for dict direto, usa como está
+            device.parametros.update(params)
         print(device.parametros)
     
     print("Resposta de listagem criada:", resposta)

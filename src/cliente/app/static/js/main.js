@@ -30,6 +30,22 @@ function renderDevices(devices) {
     // card.appendChild(valueP);
     card.appendChild(statusP);
 
+    // Adiciona parâmetros se existirem
+    if (d.parametros && Object.keys(d.parametros).length > 0) {
+      const parametrosDiv = document.createElement("div");
+      parametrosDiv.classList.add("parametros");
+      const parametrosList = document.createElement("ul");
+      
+      Object.entries(d.parametros).forEach(([key, value]) => {
+        const paramP = document.createElement("p");
+        paramP.textContent = `${key}: ${value}`;
+        parametrosList.appendChild(paramP);
+      });
+
+      parametrosDiv.appendChild(parametrosList);
+      card.appendChild(parametrosDiv);
+    }
+
     // If device is an actuator, add a control button
     const btn = document.createElement("button");
     if (String(d.status).toLowerCase() === "ativo"){
@@ -58,6 +74,7 @@ function renderDevices(devices) {
     card.appendChild(btn);
     if (String(d.type).toLowerCase() === "atuador") {
     }
+
 
     grid.appendChild(card);
   });
