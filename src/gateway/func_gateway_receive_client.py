@@ -75,27 +75,43 @@ def receber_protobuf(sock, classe):
 
 
 
-def tratar_escrita(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
+def tratar_escrita(req: proto_gateway_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
     print("Dados carregados para escrita:", dados)
     nome_dispositivo = req.name_device
 
+    print("Buscando IP e porta do dispositivo:", nome_dispositivo)
     ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
+    print(f"IP e porta encontrados: {ip_d}:{port_d}")
 
-    if ip_d and port_d:
+    if ip_d and port_d is not None:
+        print("Enviando requisição de escrita ao dispositivo...")
+
+        # extrai subcampos da mensagem 'escrever'
+        info = None
+        try:
+            info = req.escrever.info_device
+        except Exception:
+            info = None
+
+        status = info.status if info and hasattr(info, 'status') else None
+        type_device = info.type_device if info and hasattr(info, 'type_device') else None
+        parametros = dict(info.parametros) if info and hasattr(info, 'parametros') else None
+
+        operacao = "ESCREVER"
+
         resposta = enviar_req_device(
             ip_d,
             port_d,
             req.name_client,
             req.name_device,
-            req.operacao,
-            req.status,
-            req.type_device,
-            req.parametros)
+            operacao,
+            status,
+            type_device,
+            parametros)
     else:
         resposta = None
         raise ValueError("IP ou porta do dispositivo não informados")
-        
 
     return resposta
 

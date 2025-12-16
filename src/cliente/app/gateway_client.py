@@ -11,7 +11,10 @@ class GatewayClient:
 
     def enviar_protobuf(self, sock, msg):
         payload = msg.SerializeToString()
-        sock.sendall(struct.pack(">I", len(payload)) + payload)
+        try:
+            sock.sendall(struct.pack(">I", len(payload)) + payload)
+        except Exception as e:
+            print("Erro ao enviar mensagem:", e)
     
     def receber_protobuf(self, sock, cls):
         header = recv_all(sock, 4)
@@ -84,7 +87,20 @@ class GatewayClient:
     # ==============================
     # ENVIAR COMANDO (ESCREVER)
     # ==============================
-    def send_command(self, device_name, parametros: dict):
+    def send_command(self, device_name, command: dict):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(("localhost", 5012))
+        
+        info = gateway_pb2.InfoDeviceClient()
+
+        # status (opcional)
+        if "status" in command:
+            info.status = command["status"]
+
+        # parametros (opcional)
+        if "parametros" in command:
+            info.parametros.update(command["parametros"])
+
         requisicao = gateway_pb2.Requisicao(
             name_client="web-client",
             name_device=device_name,
@@ -92,13 +108,17 @@ class GatewayClient:
                 operacao=gateway_pb2.ComandoOperacao(
                     operacao=gateway_pb2.ComandoOperacao.ESCREVER
                 ),
-                info_device=gateway_pb2.InfoDeviceClient(
-                    parametros=parametros
-                )
+                info_device=info
             )
         )
 
-        resposta = self.stub.EnviarRequisicao(requisicao)
+        resposta = self.enviar_protobuf(sock, requisicao)
+
+        if resposta is None:
+            return {
+                "status": "error",
+                "message": "No response from gateway"
+            }
 
         if resposta.HasField("erro"):
             return {

@@ -20,7 +20,7 @@ def get_devices():
 @router.post("/command")
 def send_command(cmd: dict):
     status = gateway.send_command(
-        cmd["actuatorId"],
+        cmd["actuatorName"],
         cmd["command"]
     )
     return {"status": status}

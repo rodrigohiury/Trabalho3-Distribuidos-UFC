@@ -5,10 +5,10 @@ export async function getSensorData() {
   return await response.json();
 }
 
-export async function sendCommand(actuatorId, command) {
+export async function sendCommand(actuatorName, command) {
   return fetch(`${BASE_URL}/command`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ actuatorId, command }),
+    body: JSON.stringify({ actuatorName, command }),
   });
 }
