@@ -11,8 +11,10 @@ Leonardo Monteiro de Sousa - 540707
 Luis Carlos Rodrigues dos Anjos - 509022  
 Rodrigo Hiury Silva Araújo - 397843
 
-## Overview do Projeto
-[Vídeo no Google Drive](https://drive.google.com/file/d/1b_QKlAXomHBmaBuYhUpqyVx81ocL84-1/view?usp=sharing)
+## Links úteis
+[Vídeo de apresentação](https://drive.google.com/file/d/1b_QKlAXomHBmaBuYhUpqyVx81ocL84-1/view?usp=sharing)
+
+[Slides de Apresentação](https://www.canva.com/design/DAG70fHxLDg/uVarYOIWwRTR3VWrj5sKhw/edit?utm_content=DAG70fHxLDg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ## Visão Geral do Sistema
 Neste trabalho, foi desenvolvido um sistema simples baseado em sensores e atuadores distribuídos, onde diferentes dispositivos (como sensores de temperatura, luz e som, além de atuadores como ar-condicionado e controladores) se comunicam com um gateway central utilizando protocolo protobuf. O gateway atua como intermediário, concentrando a comunicação, gerenciando estados e expondo uma interface para um cliente web, que permite monitorar os dados dos sensores em tempo real e enviar comandos aos atuadores. O objetivo é permitir o monitoramento e o controle remoto de dispositivos físicos simulados, garantindo comunicação padronizada, baixo acoplamento e facilidade de expansão.
