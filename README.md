@@ -66,7 +66,7 @@ Com esse processo concluído, podemos rodar a aplicação com o comando:
 ```
 uvicorn app.main:app --reload --port 8000
 ```
-Após a instalação, pode-se rodar novamente o cliente simplesmente rodando o script na raíz do projeto:
+Após a instalação, pode-se rodar novamente o cliente simplesmente rodando o script Windows na raíz do projeto:
 ```
 client.ps1
 ```
@@ -97,7 +97,7 @@ Com esse processo concluído, podemos rodar a aplicação com o comando:
 ```
 python main.py
 ```
-Após a instalação, pode-se rodar novamente o gateway simplesmente rodando o script na raíz do projeto:
+Após a instalação, pode-se rodar novamente o gateway simplesmente rodando o script Windows na raíz do projeto:
 ```
 gateway.ps1
 ```
@@ -128,7 +128,7 @@ Com esse processo concluído, podemos rodar a aplicação com o comando:
 ```
 python main.py
 ```
-Após a instalação, pode-se rodar novamente o dispositivo luz do quarto simplesmente rodando o script na raíz do projeto:
+Após a instalação, pode-se rodar novamente o dispositivo luz do quarto simplesmente rodando o script Windows na raíz do projeto:
 ```
 luz-quarto.ps1
 ```
@@ -159,7 +159,7 @@ Com esse processo concluído, podemos rodar a aplicação com o comando:
 ```
 python main.py
 ```
-Após a instalação, pode-se rodar novamente o gateway simplesmente rodando o script na raíz do projeto:
+Após a instalação, pode-se rodar novamente o dispositivo portão automático simplesmente rodando o script Windows na raíz do projeto:
 ```
 porta.ps1
 ```
@@ -190,7 +190,7 @@ Com esse processo concluído, podemos rodar a aplicação com o comando:
 ```
 python main.py
 ```
-Após a instalação, pode-se rodar novamente o gateway simplesmente rodando o script na raíz do projeto:
+Após a instalação, pode-se rodar novamente o dispositivo sensor de temperatura simplesmente rodando o script Windows na raíz do projeto:
 ```
 temp-sensor.ps1
 ```
