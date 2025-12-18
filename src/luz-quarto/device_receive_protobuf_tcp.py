@@ -9,7 +9,7 @@ from google.protobuf.json_format import MessageToJson
 
 
 IP_DEVICE = "localhost"
-PORT_DEVICE = 5001
+PORT_DEVICE = 5003
 
 
 def carregar_json():

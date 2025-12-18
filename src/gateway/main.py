@@ -19,8 +19,12 @@ from func_gateway_save_info import receive_info_device
 #     socket_receiv_client_request_device()
 
 import threading
+import json
 
 def main():
+    with open("dados.json", "w", encoding="utf-8") as f:
+        json.dump({}, f)
+
     # Criando threads para cada função
     thread_broadcast = threading.Thread(
         target=multcast_broadcaster_udp, 

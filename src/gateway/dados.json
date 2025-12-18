@@ -1,55 +1,39 @@
 {
     "dispositivos": [
         {
-            "ip_device": "127.0.0.1",
-            "port_device": 48228,
-            "name_device": "Sensor de Umidade",
-            "status": "desligado",
-            "type_device": "sensor",
-            "parametros": {}
-        },
-        {
-            "ip_device": "::ffff:127.0.0.1",
-            "port_device": 33830,
-            "name_device": "Sensor de Temperatura",
-            "status": "ativo",
-            "type_device": "sensor",
-            "parametros": {}
-        },
-        {
-            "ip_device": "localhost",
-            "port_device": 5001,
-            "name_device": "Sensor de InfraVermelho",
-            "status": "ativo",
-            "type_device": "sensor",
-            "parametros": {}
-        },
-        {
-            "name_device": "Porta Automatica",
-            "ip_device": "localhost",
-            "port_device": 5003,
-            "status": "ativo",
-            "type_device": "atuador",
-            "parametros": {}
-        },
-        {
             "name_device": "Luz Quarto",
             "ip_device": "localhost",
             "port_device": 5003,
             "status": "ativo",
             "type_device": "atuador",
-            "parametros": {}
+            "parametros": [
+                {
+                    "ligado": "nao"
+                }
+            ]
         },
         {
-            "name_device": "Sensor de Fumaca",
+            "name_device": "Porta Automatica",
             "ip_device": "localhost",
-            "port_device": 5001,
+            "port_device": 5033,
+            "status": "ativo",
+            "type_device": "atuador",
+            "parametros": [
+                {
+                    "aberto": "nao"
+                }
+            ]
+        },
+        {
+            "name_device": "Sensor de Temperatura",
+            "ip_device": "localhost",
+            "port_device": 33830,
             "status": "ativo",
             "type_device": "sensor",
             "parametros": [
                 {
-                    "temperatura": "12",
-                    "movimentacao": "sim"
+                    "temperatura": "22.23",
+                    "unidade": "Celsius"
                 }
             ]
         }

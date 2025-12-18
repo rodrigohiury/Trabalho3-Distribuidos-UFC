@@ -35,24 +35,32 @@ function renderDevices(devices) {
       const parametrosDiv = document.createElement("div");
       parametrosDiv.classList.add("parametros");
       const parametrosList = document.createElement("ul");
-      
-      Object.entries(d.parametros).forEach(([key, value]) => {
-        const paramP = document.createElement("p");
-        paramP.textContent = `${key}: ${value}`;
-        parametrosList.appendChild(paramP);
-      });
 
-      parametrosDiv.appendChild(parametrosList);
-      card.appendChild(parametrosDiv);
+      if (!String(d.name).toLowerCase().includes("luz")) {
+        if (String(d.name).toLowerCase().includes("temperatura")) {
+          const paramP = document.createElement("p");
+          paramP.textContent = `Temperatura: ${d.parametros.temperatura} °C`;
+          parametrosList.appendChild(paramP);
+        }else {
+          Object.entries(d.parametros).forEach(([key, value]) => {
+            const paramP = document.createElement("p");
+            paramP.textContent = `${key}: ${value}`;
+            parametrosList.appendChild(paramP);
+          });
+        }
+
+        parametrosDiv.appendChild(parametrosList);
+        card.appendChild(parametrosDiv);
+      }
     }
 
     // If device is an actuator, add a control button
     const btn = document.createElement("button");
-    if (String(d.status).toLowerCase() === "ativo"){
-      btn.textContent = "Desligar";
+    if (String(d.status).toLowerCase() === "ativo") {
+      btn.textContent = "Desativar";
       btn.classList.add("toggle-button-off");
-    }else{
-      btn.textContent = "Ligar";
+    } else {
+      btn.textContent = "Ativar";
       btn.classList.add("toggle-button-on");
     }
     btn.addEventListener("click", async () => {
@@ -72,9 +80,39 @@ function renderDevices(devices) {
     });
 
     card.appendChild(btn);
-    if (String(d.type).toLowerCase() === "atuador") {
+    if (String(d.name).toLowerCase().includes("porta")) {
+      const btn2 = document.createElement("button");
+      btn2.textContent = "Abrir";
+      btn2.classList.add("open-button");
+      btn2.addEventListener("click", async () => {
+        if( String(d.status).toLowerCase() !== "ativo"){
+          alert("Ative o atuador antes de abrir a porta!");
+          return;
+        }
+        // Simple UI feedback: toggle status text optimistically
+        const currentDoor = d.parametros?.aberto;
+        console.log("Current door status:", currentDoor);
+        const newParam = (currentDoor === "nao") ? "sim" : "nao";
+        if (newParam === "sim") {
+          const command = { "parametros": {"aberto": newParam} };
+          // statusP.textContent = `Status: ${newStatus}`;
+          // Try to send command to backend (best-effort)
+          try {
+            console.warn("Enviando comando para", d.name, command);
+            await sendCommand(d.name, command);
+          } catch (err) {
+            console.error("Erro ao enviar comando do atuador:", err);
+          }
+        }else{
+          alert("Porta já está aberta!");
+        }
+      });
+      card.appendChild(btn2);
     }
 
+    
+    if (String(d.type).toLowerCase() === "atuador") {
+    }
 
     grid.appendChild(card);
   });

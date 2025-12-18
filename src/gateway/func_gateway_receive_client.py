@@ -117,7 +117,6 @@ def tratar_escrita(req: proto_gateway_pb2.Requisicao) -> proto_dispositivo_pb2.R
 
 def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
-    print("Dados carregados para leitura:", dados)
     nome_dispositivo = req.name_device
 
     ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
@@ -138,7 +137,6 @@ def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_p
 
 def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resposta:
     dados = carregar_json()
-    print("Dados carregados para listagem:", dados)
 
     # Cria a mensagem Protobuf
     resposta = proto_gateway_pb2.RespostaOkLista()
@@ -147,29 +145,14 @@ def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resp
     # (opcional) dados extras
     resposta.dados["total"] = str(len(dados["dispositivos"]))
 
-    print("Preenchendo dispositivos na resposta...")
     # Preenche a lista de devices
     for item in dados.get("dispositivos", []):
-        print("---------------------------------------------------------------------")
-        print("Item:", item)
-        print("add")
         device = resposta.devices.add()
-        print("name")
         device.name_device = item.get("name_device", "")
-        print(device.name_device)
-        print("ip")
         device.ip_device = item.get("ip_device", "")
-        print(device.ip_device)
-        print("port")
         device.port_device = int(item.get("port_device", 0))
-        print(device.port_device)
-        print("type")
         device.type_device = item.get("type_device", "")
-        print(device.type_device)
-        print("status")
         device.status = item.get("status", "")
-        print(device.status)
-        print("parametros")
         # parametros pode ser uma lista com dict ou um dict direto
         params = item.get("parametros", {})
         if isinstance(params, list) and len(params) > 0:
@@ -184,7 +167,6 @@ def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resp
             device.parametros.update(params)
         print(device.parametros)
     
-    print("Resposta de listagem criada:", resposta)
     return resposta
 
 

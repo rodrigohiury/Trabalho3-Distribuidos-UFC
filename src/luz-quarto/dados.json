@@ -1,0 +1,12 @@
+{
+    "name_device": "Luz Quarto",
+    "ip_device": "localhost",
+    "port_device": 5003,
+    "status": "ativo",
+    "type_device": "atuador",
+    "parametros": [
+        {
+            "ligado": "nao"
+        }
+    ]
+}
