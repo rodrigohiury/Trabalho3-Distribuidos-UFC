@@ -46,6 +46,7 @@ def enviar_protobuf(sock, mensagem):
     """Serializa a mensagem protobuf e envia com prefixo de tamanho."""
     try:
         payload = mensagem.SerializeToString()
+        print(f"Payload a ser enviado: {payload}")
         header = struct.pack(">I", len(payload))
         sock.sendall(header + payload)
     except Exception as e:
@@ -74,33 +75,48 @@ def receber_protobuf(sock, classe):
 
 
 
-def tratar_escrita(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
+def tratar_escrita(req: proto_gateway_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
     print("Dados carregados para escrita:", dados)
     nome_dispositivo = req.name_device
 
+    print("Buscando IP e porta do dispositivo:", nome_dispositivo)
     ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
+    print(f"IP e porta encontrados: {ip_d}:{port_d}")
 
-    if ip_d and port_d:
+    if ip_d and port_d is not None:
+        print("Enviando requisição de escrita ao dispositivo...")
+
+        # extrai subcampos da mensagem 'escrever'
+        info = None
+        try:
+            info = req.escrever.info_device
+        except Exception:
+            info = None
+
+        status = info.status if info and hasattr(info, 'status') else None
+        type_device = info.type_device if info and hasattr(info, 'type_device') else None
+        parametros = dict(info.parametros) if info and hasattr(info, 'parametros') else None
+
+        operacao = "ESCREVER"
+
         resposta = enviar_req_device(
             ip_d,
             port_d,
             req.name_client,
             req.name_device,
-            req.operacao,
-            req.status,
-            req.type_device,
-            req.parametros)
+            operacao,
+            status,
+            type_device,
+            parametros)
     else:
         resposta = None
         raise ValueError("IP ou porta do dispositivo não informados")
-        
 
     return resposta
 
 def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
     dados = carregar_json()
-    print("Dados carregados para leitura:", dados)
     nome_dispositivo = req.name_device
 
     ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
@@ -121,7 +137,6 @@ def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_p
 
 def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resposta:
     dados = carregar_json()
-    print("Dados carregados para listagem:", dados)
 
     # Cria a mensagem Protobuf
     resposta = proto_gateway_pb2.RespostaOkLista()
@@ -130,27 +145,28 @@ def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resp
     # (opcional) dados extras
     resposta.dados["total"] = str(len(dados["dispositivos"]))
 
-    print("Preenchendo dispositivos na resposta...")
     # Preenche a lista de devices
     for item in dados.get("dispositivos", []):
-        print("---------------------------------------------------------------------")
-        print("Item:", item)
-        print("add")
         device = resposta.devices.add()
-        print("name")
         device.name_device = item.get("name_device", "")
-        print("ip")
         device.ip_device = item.get("ip_device", "")
-        print("port")
         device.port_device = int(item.get("port_device", 0))
-        print("type")
         device.type_device = item.get("type_device", "")
-        print("status")
-        device.status = item.get("status_device", "")
-        print("parametros")
-        device.parametros.update(item.get("parametros", {}))
+        device.status = item.get("status", "")
+        # parametros pode ser uma lista com dict ou um dict direto
+        params = item.get("parametros", {})
+        if isinstance(params, list) and len(params) > 0:
+            # Se for lista, pega o primeiro dict e mescla todos
+            merged_params = {}
+            for p in params:
+                if isinstance(p, dict):
+                    merged_params.update(p)
+            device.parametros.update(merged_params)
+        elif isinstance(params, dict):
+            # Se for dict direto, usa como está
+            device.parametros.update(params)
+        print(device.parametros)
     
-    print("Resposta de listagem criada:", resposta)
     return resposta
 
 
@@ -199,6 +215,9 @@ def socket_receiv_client_request_device():
             print(MessageToJson(req))
 
             resp = tratar_requisicao(req)
+            print("----------------------------------------------------")
+            print("Enviando resposta:")
+            print(resp)
             enviar_protobuf(conn, resp)
 
         except Exception as e:

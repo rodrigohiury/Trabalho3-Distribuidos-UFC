@@ -4,6 +4,31 @@
   box-sizing: border-box;
 }
 
+.toggle-button-on {
+  padding: 8px 12px;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  margin: 10px;
+}
+
+.toggle-button-off {
+  padding: 8px 12px;
+  background-color: #ad4343;
+  color: white;
+  border-radius: 4px;
+  margin: 10px;
+}
+
+.open-button {
+  padding: 8px 12px;
+  background-color: #b3943e;
+  color: white;
+  border-radius: 4px;
+  margin: 10px;
+}
+
+
 .main {
   font-family: "Montserrat";
   background: #95a7c9;
@@ -47,4 +72,9 @@
   font-weight: bold;
   margin-bottom: 10px;
   color: #738099;
+}
+
+.parametros{
+  width: 60%;
+  justify-self: center;
 }
