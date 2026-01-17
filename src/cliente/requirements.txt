@@ -3,3 +3,4 @@ uvicorn
 jinja2
 grpcio
 grpcio-tools
+pika==1.3.2
