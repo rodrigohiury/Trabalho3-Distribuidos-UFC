@@ -1,6 +1,6 @@
 import socket
 import time
-import proto_endereco_gateway_pb2 as pb
+import json
 
 
 def multcast_broadcaster_udp(
@@ -8,6 +8,9 @@ def multcast_broadcaster_udp(
     port_gateway="7895",
     multicast_ip="224.1.1.1",
     multicast_port=5007,
+    broker_ip="localhost",
+    broker_port=5672,
+    exchange_name="tr3-sd-e",
     interval_sec=3,
     ttl=128
 ):
@@ -28,16 +31,20 @@ def multcast_broadcaster_udp(
     try:
         while True:
             # Cria mensagem protobuf
-            msg = pb.EnderecoInfo()
-            msg.id_gateway_for_save_info = ip_gateway
-            msg.port_gateway_for_save_info = port_gateway
+            msg = {
+                "ip_gateway": ip_gateway,
+                "port_gateway": int(port_gateway),
+                "broker_ip": broker_ip,
+                "broker_port": int(broker_port),
+                "exchange_name": exchange_name
+            }
 
-            payload = msg.SerializeToString()
+            payload = json.dumps(msg).encode("utf-8")
 
             sock.sendto(payload, (multicast_ip, multicast_port))
 
             print(
-                f"Enviado → gateway={ip_gateway} porta={port_gateway}"
+                f"Enviado → gateway={ip_gateway}:{port_gateway} broker={broker_ip}:{broker_port} exchange={exchange_name}"
             )
 
             time.sleep(interval_sec)
@@ -49,7 +56,4 @@ def multcast_broadcaster_udp(
 
 
 if __name__ == "__main__":
-    multcast_broadcaster_udp(
-        ip_gateway="localhost do gostosim",
-        port_gateway="7895"
-    )
+    multcast_broadcaster_udp()

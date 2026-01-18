@@ -2,12 +2,12 @@ import socket
 import os
 import struct
 import json
-import proto_dispositivo_pb2
+# import proto_dispositivo_pb2
 
 ESTADOS_VALIDOS = ["ativo", "desligado", "ATIVO", "DESLIGADO"]
 TIPOS_VALIDOS = ["sensor", "atuador"]
 ARQUIVO_DADOS = "dados.json"
-PORTA = 7895
+PORTA = 78950
 
 def carregar_dispositivos():
     if not os.path.exists(ARQUIVO_DADOS):
@@ -83,7 +83,7 @@ def receive_info_device():
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
     try:
-        server_socket.bind(('0.0.0.0', PORTA))
+        server_socket.bind(('localhost', PORTA))
         server_socket.listen(5)
         print(f"Gateway (Python) rodando na porta {PORTA} aguardando Protobuf...")
 

@@ -1,8 +1,9 @@
 import socket
 import struct
-import proto_endereco_gateway_pb2 as pb
-from device_request_info_tcp import enviar_dispositivo
 import json
+import os
+# import proto_endereco_gateway_pb2 as pb
+# from device_request_info_tcp import enviar_dispositivo
 
 
 def carregar_json(caminho_arquivo):
@@ -12,7 +13,6 @@ def carregar_json(caminho_arquivo):
     :param caminho_arquivo: Caminho do arquivo JSON.
     :return: Dados do JSON (dict ou list).
     """
-    import os
     
     try:
         with open(caminho_arquivo, "r", encoding="utf-8") as f:
@@ -46,34 +46,44 @@ def start_udp_listener(
     while True:
         data, addr = sock.recvfrom(1024)
 
-        msg = pb.EnderecoInfo()
-        msg.ParseFromString(data)
+        msg = json.loads(data)
 
         print(
             f"Recebido de {addr[0]}:"
-            f"\ngateway=   >{msg.id_gateway_for_save_info}<   \n "
-            f"porta=    >{msg.port_gateway_for_save_info}<     "
+            f"\ngateway=   >{msg["ip_gateway"]}:{msg["port_gateway"]}<   \n "
+            f"broker=    >{msg["broker_ip"]}:{msg["broker_port"]}<     \n"
+            f"exchange=    >{msg["exchange_name"]}<     "
         )
 
         dados_device = carregar_json("dados.json")
         # print(dados_device["port_device"])
         dados_device["port_device"] = int(dados_device["port_device"])
-        print(dados_device["port_device"])
 
-        # print(dados_device)
-        dispositivo_exemplo = {
-            "name_device": "Porta Automatica",
-            "ip_device": "localhost",
-            "port_device": 5003,
-            "status": "ativo",
-            "type_device": "atuador",
-            "parametros": [
-                {}
-            ]
+        msgSend = {
+            "name_device": dados_device["name_device"],
+            "ip_device": dados_device["ip_device"],
+            "port_device": dados_device["port_device"],
+            "type_device": dados_device["type_device"]
         }
 
-        print(type(dispositivo_exemplo))
-        enviar_dispositivo(msg.id_gateway_for_save_info, int(msg.port_gateway_for_save_info), dados_device)
+        ttl = 128
+
+        # Cria socket UDP
+        sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+
+        # TTL multicast
+        sock2.setsockopt(
+            socket.IPPROTO_IP,
+            socket.IP_MULTICAST_TTL,
+            ttl.to_bytes(1, byteorder="big")
+        )
+
+        payload = json.dumps(msgSend).encode("utf-8")
+        print("Enviando para o gateway:")
+        print(msgSend)
+        sock2.sendto(payload, (msg["ip_gateway"], msg["port_gateway"]))
+        sock2.close()
+        # enviar_dispositivo(msg.id_gateway_for_save_info, int(msg.port_gateway_for_save_info), dados_device)
 
 if __name__ == "__main__":
     start_udp_listener()

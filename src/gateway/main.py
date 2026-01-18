@@ -1,25 +1,16 @@
-
 import sys
 import os
+import threading
+import json
 
 sys.path.append("../")
 
-from func_gateway_request_device import enviar_requisicao_tcp as enviar_req_device
+# from func_gateway_request_device import enviar_requisicao_tcp as enviar_req_device
 from func_gateway_receive_client import socket_receiv_client_request_device
 from func_multcast_udp import multcast_broadcaster_udp
 from func_gateway_save_info import receive_info_device
 
-# if __name__ == "__main__":
-#     multcast_broadcaster_udp(
-#         ip_gateway="localhost",
-#         port_gateway="7895"
-#     )
 
-#     receive_info_device()
-#     socket_receiv_client_request_device()
-
-import threading
-import json
 
 def main():
     with open("dados.json", "w", encoding="utf-8") as f:

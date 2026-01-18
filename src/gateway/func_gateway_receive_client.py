@@ -8,11 +8,14 @@ import sys
 import os
 
 sys.path.append("../")
-import proto_dispositivo_pb2 as proto_dispositivo_pb2
+# import proto_dispositivo_pb2 as proto_dispositivo_pb2
 import proto_gateway_pb2 as proto_gateway_pb2
 from google.protobuf.json_format import MessageToJson
 
-from func_gateway_request_device import enviar_requisicao_tcp as enviar_req_device
+# from func_gateway_request_device import enviar_requisicao_tcp as enviar_req_device
+import device_pb2
+import device_pb2_grpc
+from device_listener import setState, getState
 
 
 IP_DEVICE = "localhost"
@@ -23,13 +26,12 @@ def carregar_json():
     with open("dados.json", "r", encoding="utf-8") as f:
         return json.load(f)
     
-def buscar_ip_porta_dispositivo(dados, nome_disopsitivo):
-    
+def buscar_dispositivo(dados, nome_disopsitivo):
     for d in dados.get("dispositivos", []):
         if d.get("name_device") == nome_disopsitivo:
-            return d["ip_device"], d["port_device"]
+            return d
 
-    return None, None
+    return None
 
 
 def recv_all(sock, n):
@@ -75,64 +77,32 @@ def receber_protobuf(sock, classe):
 
 
 
-def tratar_escrita(req: proto_gateway_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
-    dados = carregar_json()
-    print("Dados carregados para escrita:", dados)
-    nome_dispositivo = req.name_device
+def tratar_escrita(req: proto_gateway_pb2.Requisicao):
 
-    print("Buscando IP e porta do dispositivo:", nome_dispositivo)
-    ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
-    print(f"IP e porta encontrados: {ip_d}:{port_d}")
+    newReq = device_pb2.DeviceState()
+    newReq.status = req.escrever.info_device.status
+    newReq.parametros = dict(req.escrever.info_device.parametros)
 
-    if ip_d and port_d is not None:
-        print("Enviando requisição de escrita ao dispositivo...")
-
-        # extrai subcampos da mensagem 'escrever'
-        info = None
-        try:
-            info = req.escrever.info_device
-        except Exception:
-            info = None
-
-        status = info.status if info and hasattr(info, 'status') else None
-        type_device = info.type_device if info and hasattr(info, 'type_device') else None
-        parametros = dict(info.parametros) if info and hasattr(info, 'parametros') else None
-
-        operacao = "ESCREVER"
-
-        resposta = enviar_req_device(
-            ip_d,
-            port_d,
-            req.name_client,
-            req.name_device,
-            operacao,
-            status,
-            type_device,
-            parametros)
-    else:
-        resposta = None
-        raise ValueError("IP ou porta do dispositivo não informados")
+    resposta = setState(req.name_device, newReq)
 
     return resposta
 
-def tratar_leitura(req: proto_dispositivo_pb2.Requisicao) -> proto_dispositivo_pb2.Resposta:
+def tratar_leitura(req):
     dados = carregar_json()
     nome_dispositivo = req.name_device
 
-    ip_d, port_d = buscar_ip_porta_dispositivo(dados, nome_dispositivo)
+    device = buscar_dispositivo(dados, nome_dispositivo)
 
-    if ip_d and port_d:
-        resposta = enviar_req_device(
-            ip_d,
-            port_d,
-            req.name_client,
-            req.name_device,
-            req.operacao,
-            req.type_device,
-        )
+    if device is not None:
+        target = device.get("ip_device") + ":" + str(device.get("port_device"))
+        channel = grpc.insecure_channel(target)
+        stub = device_pb2_grpc.DeviceServiceStub(channel)
+
+        resposta = stub.GetState()
     else:
         resposta = None
         raise ValueError("IP ou porta do dispositivo não informados")
+    return resposta
         
 
 def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resposta:

@@ -67,7 +67,7 @@ function renderDevices(devices) {
       // Simple UI feedback: toggle status text optimistically
       const current = statusP.textContent || "";
       const isOn = /on|ativo|true/i.test(current);
-      const newStatus = isOn ? "desligado" : "ativo";
+      const newStatus = isOn ? "desativado" : "ativo";
       const command = { "status": newStatus };
       // statusP.textContent = `Status: ${newStatus}`;
       // Try to send command to backend (best-effort)

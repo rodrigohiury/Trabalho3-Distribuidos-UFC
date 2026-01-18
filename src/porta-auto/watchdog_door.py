@@ -1,5 +1,6 @@
 import json
 import time
+from send_state import enviar_estado_atual
 
 
 def watchdog_door():
@@ -25,6 +26,8 @@ def watchdog_door():
                 # 4. Gravar novamente no arquivo
                 with open(ARQUIVO_JSON, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
+                
+                enviar_estado_atual()
 
                 print("Porta fechada automaticamente.")
 
