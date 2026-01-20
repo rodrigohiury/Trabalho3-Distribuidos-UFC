@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64\x65vice.proto\x12\x06\x64\x65vice\"\x82\x01\n\x0e\x44\x65viceResponse\x12$\n\x05state\x18\x01 \x01(\x0b\x32\x13.device.DeviceStateH\x00\x12\x1e\n\x02id\x18\x02 \x01(\x0b\x32\x10.device.DeviceIDH\x00\x12\"\n\x04info\x18\x03 \x01(\x0b\x32\x12.device.DeviceInfoH\x00\x42\x06\n\x04tipo\"\xe0\x01\n\nDeviceInfo\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x11\n\tdevice_ip\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65vice_port\x18\x03 \x01(\t\x12\x15\n\rdevice_status\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65vice_type\x18\x05 \x01(\t\x12\x36\n\nparametros\x18\x06 \x03(\x0b\x32\".device.DeviceInfo.ParametrosEntry\x1a\x31\n\x0fParametrosEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9e\x01\n\x0b\x44\x65viceState\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x37\n\nparameters\x18\x03 \x03(\x0b\x32#.device.DeviceState.ParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\\\n\x08\x44\x65viceID\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x11\n\tdevice_ip\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65vice_port\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65vice_type\x18\x05 \x01(\t\"t\n\tMulticast\x12\x12\n\nip_gateway\x18\x01 \x01(\t\x12\x14\n\x0cport_gateway\x18\x02 \x01(\t\x12\x11\n\tbroker_ip\x18\x03 \x01(\t\x12\x13\n\x0b\x62roker_port\x18\x04 \x01(\t\x12\x15\n\rexchange_name\x18\x05 \x01(\t\"2\n\x0f\x43ommandResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x07\n\x05\x45mpty2\xa7\x01\n\rDeviceService\x12,\n\x07GetInfo\x12\r.device.Empty\x1a\x12.device.DeviceInfo\x12.\n\x08GetState\x12\r.device.Empty\x1a\x13.device.DeviceState\x12\x38\n\x08SetState\x12\x13.device.DeviceState\x1a\x17.device.CommandResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64\x65vice.proto\x12\x06\x64\x65vice\"\x82\x01\n\x0e\x44\x65viceResponse\x12$\n\x05state\x18\x01 \x01(\x0b\x32\x13.device.DeviceStateH\x00\x12\x1e\n\x02id\x18\x02 \x01(\x0b\x32\x10.device.DeviceIDH\x00\x12\"\n\x04info\x18\x03 \x01(\x0b\x32\x12.device.DeviceInfoH\x00\x42\x06\n\x04tipo\"\xe0\x01\n\nDeviceInfo\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x11\n\tdevice_ip\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65vice_port\x18\x03 \x01(\t\x12\x15\n\rdevice_status\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65vice_type\x18\x05 \x01(\t\x12\x36\n\nparametros\x18\x06 \x03(\x0b\x32\".device.DeviceInfo.ParametrosEntry\x1a\x31\n\x0fParametrosEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9e\x01\n\x0b\x44\x65viceState\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x37\n\nparameters\x18\x03 \x03(\x0b\x32#.device.DeviceState.ParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\\\n\x08\x44\x65viceID\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x11\n\tdevice_ip\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65vice_port\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65vice_type\x18\x05 \x01(\t\"t\n\tMulticast\x12\x12\n\nip_gateway\x18\x01 \x01(\t\x12\x14\n\x0cport_gateway\x18\x02 \x01(\t\x12\x11\n\tbroker_ip\x18\x03 \x01(\t\x12\x13\n\x0b\x62roker_port\x18\x04 \x01(\t\x12\x15\n\rexchange_name\x18\x05 \x01(\t\"\xb4\x01\n\x0f\x43ommandResponse\x12\x10\n\x08response\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06status\x18\x03 \x01(\t\x12;\n\nparameters\x18\x04 \x03(\x0b\x32\'.device.CommandResponse.ParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x07\n\x05\x45mpty2\xa7\x01\n\rDeviceService\x12,\n\x07GetInfo\x12\r.device.Empty\x1a\x12.device.DeviceInfo\x12.\n\x08GetState\x12\r.device.Empty\x1a\x13.device.DeviceState\x12\x38\n\x08SetState\x12\x13.device.DeviceState\x1a\x17.device.CommandResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,6 +35,8 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_DEVICEINFO_PARAMETROSENTRY']._serialized_options = b'8\001'
   _globals['_DEVICESTATE_PARAMETERSENTRY']._loaded_options = None
   _globals['_DEVICESTATE_PARAMETERSENTRY']._serialized_options = b'8\001'
+  _globals['_COMMANDRESPONSE_PARAMETERSENTRY']._loaded_options = None
+  _globals['_COMMANDRESPONSE_PARAMETERSENTRY']._serialized_options = b'8\001'
   _globals['_DEVICERESPONSE']._serialized_start=25
   _globals['_DEVICERESPONSE']._serialized_end=155
   _globals['_DEVICEINFO']._serialized_start=158
@@ -49,10 +51,12 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_DEVICEID']._serialized_end=637
   _globals['_MULTICAST']._serialized_start=639
   _globals['_MULTICAST']._serialized_end=755
-  _globals['_COMMANDRESPONSE']._serialized_start=757
-  _globals['_COMMANDRESPONSE']._serialized_end=807
-  _globals['_EMPTY']._serialized_start=809
-  _globals['_EMPTY']._serialized_end=816
-  _globals['_DEVICESERVICE']._serialized_start=819
-  _globals['_DEVICESERVICE']._serialized_end=986
+  _globals['_COMMANDRESPONSE']._serialized_start=758
+  _globals['_COMMANDRESPONSE']._serialized_end=938
+  _globals['_COMMANDRESPONSE_PARAMETERSENTRY']._serialized_start=494
+  _globals['_COMMANDRESPONSE_PARAMETERSENTRY']._serialized_end=543
+  _globals['_EMPTY']._serialized_start=940
+  _globals['_EMPTY']._serialized_end=947
+  _globals['_DEVICESERVICE']._serialized_start=950
+  _globals['_DEVICESERVICE']._serialized_end=1117
 # @@protoc_insertion_point(module_scope)

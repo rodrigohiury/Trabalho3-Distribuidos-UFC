@@ -27,9 +27,11 @@ def multcast_broadcaster_udp(
         ttl.to_bytes(1, byteorder="big")
     )
 
-    print("Broadcaster UDP iniciado")
+    print("---------------------------------------------------------")
+    print("[MULTICAST ON] Broadcaster UDP iniciado")
     print(f"Multicast: {multicast_ip}:{multicast_port}")
     print(f"Intervalo: {interval_sec}s | TTL: {ttl}")
+    print("---------------------------------------------------------")
 
     try:
         while True:
@@ -54,7 +56,7 @@ def multcast_broadcaster_udp(
             sock.sendto(payload, (multicast_ip, multicast_port))
 
             print(
-                f"Enviado → gateway={ip_gateway}:{port_gateway} broker={broker_ip}:{broker_port} exchange={exchange_name}"
+                f"[BROADCASTING] Enviado → gateway={ip_gateway}:{port_gateway} broker={broker_ip}:{broker_port} exchange={exchange_name}"
             )
 
             time.sleep(interval_sec)
@@ -62,7 +64,7 @@ def multcast_broadcaster_udp(
             findLazyDevices()
 
     except KeyboardInterrupt:
-        print("\nBroadcaster encerrado")
+        print("\n[MULTICAST OFF] Broadcaster encerrado")
     finally:
         sock.close()
 
@@ -81,7 +83,7 @@ def findLazyDevices():
     alterado = False
     for i, disp in enumerate(dispositivos):
         if time.time() - float(disp["last_update"]) >= 10:
-            print(f"Dispositivo {disp['name_device']} está offline. Deletando.")
+            print(f"[DELETE] Dispositivo {disp['name_device']} está offline. Deletando.")
             dispositivos.pop(i)
             alterado = True
     if alterado:

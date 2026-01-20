@@ -48,11 +48,10 @@ def enviar_protobuf(sock, mensagem):
     """Serializa a mensagem protobuf e envia com prefixo de tamanho."""
     try:
         payload = mensagem.SerializeToString()
-        print(f"Payload a ser enviado: {payload}")
         header = struct.pack(">I", len(payload))
         sock.sendall(header + payload)
     except Exception as e:
-        print("Erro ao enviar mensagem:", e)
+        print("[ERROR] Erro ao enviar mensagem:", e)
         raise
 
 def receber_protobuf(sock, classe):
@@ -67,11 +66,10 @@ def receber_protobuf(sock, classe):
 
         msg = classe()
         msg.ParseFromString(payload)
-        print(f"msg {msg}")
         return msg
 
     except Exception as e:
-        print("Erro ao receber resposta:", e)
+        print("[ERROR] Erro ao receber resposta:", e)
         raise
 
 
@@ -79,11 +77,20 @@ def receber_protobuf(sock, classe):
 
 def tratar_escrita(req: proto_gateway_pb2.Requisicao):
 
+    d = buscar_dispositivo(carregar_json(), req.name_device)
     newReq = device_pb2.DeviceState()
-    newReq.status = req.escrever.info_device.status
-    newReq.parametros = dict(req.escrever.info_device.parametros)
-
-    resposta = setState(req.name_device, newReq)
+    newReq.device_name = req.name_device
+    if req.escrever.info_device.status != "":
+        newReq.status = req.escrever.info_device.status
+    else:
+        newReq.status = d["status"]
+    if req.escrever.info_device.parametros is not None:
+        for k, v in req.escrever.info_device.parametros.items():
+            newReq.parameters[k] = v
+    else: 
+        for k, v in d["parametros"].items():
+            newReq.parameters[k] = v
+    resposta = setState(newReq)
 
     return resposta
 
@@ -135,25 +142,22 @@ def tratar_listagem(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resp
         elif isinstance(params, dict):
             # Se for dict direto, usa como está
             device.parametros.update(params)
-        print(device.parametros)
     
     return resposta
 
 
 
 def tratar_requisicao(req: proto_gateway_pb2.Requisicao) -> proto_gateway_pb2.Resposta:
-    print("Tratando requisição...")
     tipo = req.WhichOneof("tipo")
-    print(f"Tipo de requisição: {tipo}")
 
     if tipo == "ler":
-        print("Req de leitura")
+        print("[READ REQ] Requisição de leitura recebida")
         return tratar_leitura(req)
     elif tipo == "escrever":
-        print("Req de escrita")
+        print("[WRITE REQ] Requisição de escrita recebida")
         return tratar_escrita(req)
     elif tipo == "listar":
-        print("Req de listagem")
+        print("[LIST REQ] Requisição de listagem recebida")
         return tratar_listagem(req)
     else:
         return erro("REQUISICAO_INVALIDA", "Tipo de requisição não reconhecido")
@@ -173,25 +177,20 @@ def socket_receiv_client_request_device():
     socket_device.bind((IP_DEVICE, 5012))
     socket_device.listen(1)
 
-    print(f"Dispositivo escutando em {IP_DEVICE}:{PORT_DEVICE}")
+    print(f"[LISTENING] Dispositivo escutando em {IP_DEVICE}:{PORT_DEVICE}")
 
     while True:
         conn, addr = socket_device.accept()
-        print("Conexão recebida de:", addr)
+        print("[CONNECTION ESTABLISHED] Conexão recebida de:", addr)
 
         try:
             req = receber_protobuf(conn, proto_gateway_pb2.Requisicao)
-            print("Requisição recebida:")
-            print(MessageToJson(req))
 
             resp = tratar_requisicao(req)
-            print("----------------------------------------------------")
-            print("Enviando resposta:")
-            print(resp)
             enviar_protobuf(conn, resp)
 
         except Exception as e:
-            print("Erro:", e)
+            print("[ERROR]:", e)
 
         finally:
             conn.close()

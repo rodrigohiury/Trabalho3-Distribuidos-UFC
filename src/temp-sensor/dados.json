@@ -1,11 +1,11 @@
 {
   "ip_device": "localhost",
-  "port_device": 33830,
+  "port_device": 3830,
   "name_device": "Sensor de Temperatura",
   "status": "ativo",
   "type_device": "sensor",
   "parametros": {
-    "temperatura": "23.80",
+    "temperatura": "28.60",
     "unidade": "Celsius"
   }
 }

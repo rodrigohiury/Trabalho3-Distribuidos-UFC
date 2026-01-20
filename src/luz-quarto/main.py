@@ -1,13 +1,29 @@
+import grpc
+import threading
+import device_pb2
+import device_pb2_grpc
 from device_receive_multcast_udp import start_udp_listener
 from device_receive_protobuf_tcp import socket_tcp_device_receive
+from device_grpc_server import DeviceServiceServicer
+from concurrent import futures
 
-import threading
 
 if __name__ == "__main__":
+
     # Cria threads para cada função
     thread_udp = threading.Thread(target=start_udp_listener, name="UDPListener")
     thread_tcp = threading.Thread(target=socket_tcp_device_receive, name="TCPListener")
-
     # Inicia as threads
     thread_udp.start()
     thread_tcp.start()
+
+    grpc_serv = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
+    device_pb2_grpc.add_DeviceServiceServicer_to_server(
+        DeviceServiceServicer(),
+        grpc_serv
+    )
+
+    grpc_serv.add_insecure_port("[::]:15003")
+    grpc_serv.start()
+    print("Dispositivo gRPC rodando na porta 15003")
+    grpc_serv.wait_for_termination()

@@ -47,6 +47,7 @@ def getState():
 
 
 def start_udp_listener(
+    whatchdog=None,
     multicast_ip="224.1.1.1",
     multicast_port=5007
 ):
@@ -127,6 +128,7 @@ def start_udp_listener(
             print("Timeout esperando resposta do gateway.")
         except Exception as e:
             print("Erro ao receber resposta do gateway:", e)
+        whatchdog.set_gateway(msg.ip_gateway, int(msg.port_gateway))
         sock2.close()
         # enviar_dispositivo(msg.id_gateway_for_save_info, int(msg.port_gateway_for_save_info), dados_device)
     sock.close()

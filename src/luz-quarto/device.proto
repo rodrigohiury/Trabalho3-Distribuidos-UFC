@@ -47,8 +47,10 @@ message Multicast {
 }
 
 message CommandResponse {
-  string status = 1;      // ok | error
+  string response = 1;    // ok | error
   string message = 2;
+  string status = 3;    // ativo | desativado
+  map<string, string> parameters = 4;
 }
 
 message Empty {}

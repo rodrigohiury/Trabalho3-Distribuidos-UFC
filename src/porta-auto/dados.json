@@ -1,10 +1,10 @@
 {
-    "name_device": "Porta Automatica",
-    "ip_device": "localhost",
-    "port_device": 5033,
-    "status": "ativo",
-    "type_device": "atuador",
-    "parametros": {
-            "aberto": "nao"
-    }
+  "name_device": "Porta Automatica",
+  "ip_device": "localhost",
+  "port_device": 5033,
+  "status": "ativo",
+  "type_device": "atuador",
+  "parametros": {
+    "aberto": "nao"
+  }
 }

@@ -1,5 +1,7 @@
 import socket
 import json
+import device_pb2
+import device_pb2_grpc
 
 
 def carregar_json(caminho_arquivo):
@@ -21,17 +23,29 @@ def carregar_json(caminho_arquivo):
     except Exception as e:
         print(f"Ocorreu um erro: {str(e)}")
 
-def enviar_estado_atual():
+def enviar_estado_atual(gateway_ip, gateway_port):
     dados_device = carregar_json("dados.json")
-    msg = {
-        "name_device": dados_device["name_device"],
-        "status": dados_device["status"],
-        "parametros": dados_device["parametros"]
-    }
+    msg = device_pb2.DeviceResponse()
+    msg.state.device_name = dados_device["name_device"]
+    msg.state.status = dados_device["status"]
+    for k, v in dados_device["parametros"].items():
+        msg.state.parameters[k] = v
+    payload = msg.SerializeToString()
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((ip_servidor, porta_servidor))
-        sock.sendall(json.dumps(msg).encode("utf-8"))
+
+        ttl = 128
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+
+        # TTL multicast
+        sock.setsockopt(
+            socket.IPPROTO_IP,
+            socket.IP_MULTICAST_TTL,
+            ttl.to_bytes(1, byteorder="big")
+        )
+        sock.sendto(payload, (gateway_ip, gateway_port))
+        conn, addr = sock.recvfrom(1024)
+        print("[AUTO CHANGE] Estado atual enviado ao gateway com sucesso.")
         sock.close()
     except Exception as e:
         print(f"Erro ao enviar estado atual: {str(e)}")

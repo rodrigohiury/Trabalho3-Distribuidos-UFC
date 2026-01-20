@@ -43,39 +43,31 @@ def enviar_requisicao_tcp(
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(timeout)
-    print(f"Conectando ao dispositivo em {ip}:{porta}...")
+    print(f"[CONNECTING] Conectando ao dispositivo em {ip}:{porta}...")
     sock.connect((ip, porta))
 
     req = pb.Requisicao()
-    print("Montando requisição para dispositivo...")
     req.name_client = name_client
-    print(f"Nome do cliente definido: {name_client}")
     req.name_device = name_device
-    print(f"Nome do dispositivo definido: {name_device}")
 
     if operacao.upper() == "LER":
-        print("Operação definida como LER")
         req.ler.operacao.operacao = pb.ComandoOperacao.LER
 
     elif operacao.upper() == "ESCREVER":
-        print("Operação definida como ESCREVER")
         req.escrever.operacao.operacao = pb.ComandoOperacao.ESCREVER
 
         if status is not None:
-            print(f"Definindo status do dispositivo para: {status}")
             req.escrever.info_device.status = status
 
         if type_device is not None:
-            print(f"Definindo tipo do dispositivo para: {type_device}")
             req.escrever.info_device.type_device = type_device
 
         if parametros:
-            print(f"Definindo parâmetros do dispositivo: {parametros}")
             for k, v in parametros.items():
                 req.escrever.info_device.parametros[k] = str(v)
 
     else:
-        raise ValueError("Operação inválida: use 'LER' ou 'ESCREVER'")
+        raise ValueError("[ERROR] Operação inválida: use 'LER' ou 'ESCREVER'")
 
     # Envia requisição
     print("Enviando requisição ao dispositivo...")
