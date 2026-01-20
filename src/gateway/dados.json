@@ -1,37 +1,25 @@
 {
     "dispositivos": [
         {
-            "name_device": "Porta Automatica",
-            "ip_device": "localhost",
-            "port_device": "5033",
-            "type_device": "atuador",
-            "last_update": "1768889909.0117874",
-            "status": "ativo",
-            "parametros": {
-                "aberto": "nao"
-            }
-        },
-        {
             "name_device": "Luz Quarto",
             "ip_device": "localhost",
             "port_device": "5003",
             "type_device": "atuador",
-            "last_update": "1768889908.9407883",
+            "last_update": "1768895046.139014",
             "status": "ativo",
             "parametros": {
                 "ligado": "nao"
             }
         },
         {
-            "name_device": "Sensor de Temperatura",
+            "name_device": "Porta Automatica",
             "ip_device": "localhost",
-            "port_device": "3830",
-            "type_device": "sensor",
-            "last_update": "1768889908.972431",
+            "port_device": "5033",
+            "type_device": "atuador",
+            "last_update": "1768895046.1650243",
             "status": "ativo",
             "parametros": {
-                "temperatura": "28.60",
-                "unidade": "Celsius"
+                "aberto": "nao"
             }
         }
     ]

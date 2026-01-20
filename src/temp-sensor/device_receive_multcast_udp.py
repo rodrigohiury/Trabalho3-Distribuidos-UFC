@@ -79,7 +79,7 @@ def start_udp_listener(
         )
 
         dados_device = carregar_json("dados.json")
-        # print(dados_device["port_device"])
+        print(dados_device["port_device"])
         dados_device["port_device"] = int(dados_device["port_device"])
 
         msgSend = device_pb2.DeviceResponse()
