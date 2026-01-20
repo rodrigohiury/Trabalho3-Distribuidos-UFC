@@ -4,6 +4,8 @@ import time
 import random
 import os
 import threading
+import device_pb2
+import device_pb2_grpc
 
 class SendState():
     def __init__(
@@ -30,7 +32,11 @@ class SendState():
         self.ready_event.set()
 
 
-    def carregar_json(caminho_arquivo):
+    def getPayload(self, mensagem):
+        payload = mensagem.SerializeToString()
+        return payload
+
+    def carregar_json(self, caminho_arquivo):
         """
         Lê um arquivo JSON e retorna os dados carregados como dicionário ou lista.
 
@@ -69,16 +75,22 @@ class SendState():
         ) """
 
         while True:
-            data_device = carregar_json("dados.json")
+            data_device = self.carregar_json("dados.json")
 
+            msg = device_pb2.DeviceState()
+            msg.device_name = data_device["name_device"]
+            msg.status = data_device["status"]
+            for k, v in data_device["parametros"].items():
+                msg.parameters[k] = v
+            payload = self.getPayload(msg)
             channel.basic_publish(
-                exchange=exchange_name,
+                exchange=self.exchange_name,
                 routing_key='',
-                body=json.dumps(data_device)
+                body=payload
             )
 
             print("Publicado:", data_device)
-            time.sleep(15)
+            time.sleep(3)
     
 
     def start_sending(self):

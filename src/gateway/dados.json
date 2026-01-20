@@ -1,3 +1,16 @@
 {
-    "dispositivos": []
+    "dispositivos": [
+        {
+            "name_device": "Sensor de Temperatura",
+            "ip_device": "localhost",
+            "port_device": "33830",
+            "type_device": "sensor",
+            "last_update": "1768879021.7489414",
+            "status": "ativo",
+            "parametros": {
+                "temperatura": "24.62",
+                "unidade": "Celsius"
+            }
+        }
+    ]
 }

@@ -110,19 +110,6 @@ def start_udp_listener(
             data, addr = sock2.recvfrom(1024)
             resposta = getProtobuf(data, device_pb2.CommandResponse)
             print(f"Resposta do gateway: {resposta.message}")
-            if "[FIRST_TIME]" in resposta.message:
-                print("Enviando estado inicial do dispositivo...")
-                state_msg = getState()
-                payload_state = getPayload(state_msg)
-                sock2.sendto(payload_state, (msg.ip_gateway, int(msg.port_gateway)))
-                try:
-                    data, addr = sock2.recvfrom(1024)
-                    resposta_state = getProtobuf(data, device_pb2.CommandResponse)
-                    print(f"Resposta do gateway ao estado inicial: {resposta_state.message}")
-                except socket.timeout:
-                    print("Timeout esperando resposta do gateway ao estado inicial.")
-                except Exception as e:
-                    print("Erro ao receber resposta do gateway ao estado inicial:", e)
         except ConnectionResetError as e:
             print("Erro de conexão:", e)       
         except socket.timeout:
@@ -130,9 +117,9 @@ def start_udp_listener(
         except Exception as e:
             print("Erro ao receber resposta do gateway:", e)
         send_state.setParams(
-            msg.exchange_name,
             msg.broker_ip,
-            int(msg.broker_port)
+            int(msg.broker_port),
+            msg.exchange_name
         )
         sock2.close()
         # enviar_dispositivo(msg.id_gateway_for_save_info, int(msg.port_gateway_for_save_info), dados_device)
