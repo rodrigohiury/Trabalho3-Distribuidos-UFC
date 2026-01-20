@@ -14,14 +14,14 @@ def watchdog_door():
                 data = json.load(f)
 
             # 2. Verificar o estado
-            estado = data["parametros"][0]["aberto"]
+            estado = data["parametros"]["aberto"]
 
             if estado.lower() == "sim":
                 print("Porta aberta detectada. Aguardando 10 segundos...")
                 time.sleep(10)
 
                 # 3. Atualizar para "nao"
-                data["parametros"][0]["aberto"] = "nao"
+                data["parametros"]["aberto"] = "nao"
 
                 # 4. Gravar novamente no arquivo
                 with open(ARQUIVO_JSON, "w", encoding="utf-8") as f:

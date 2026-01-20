@@ -2,25 +2,24 @@ import socket
 import os
 import struct
 import json
+import device_pb2
+import device_pb2_grpc
+import time
 # import proto_dispositivo_pb2
 
 ESTADOS_VALIDOS = ["ativo", "desativado", "ATIVO", "DESATIVADO"]
 TIPOS_VALIDOS = ["sensor", "atuador"]
 ARQUIVO_DADOS = "dados.json"
-PORTA = 78950
+PORTA = 58950
 
-def receber_protobuf(sock, classe):
-    header = recv_all(sock, 4)
-    tamanho = struct.unpack(">I", header)[0]
-    payload = recv_all(sock, tamanho)
+def getPayload(mensagem):
+    payload = mensagem.SerializeToString()
+    return payload
+
+def getProtobuf(payload, classe):
     msg = classe()
     msg.ParseFromString(payload)
     return msg
-
-def enviar_protobuf(sock, mensagem):
-    payload = mensagem.SerializeToString()
-    header = struct.pack(">I", len(payload))
-    sock.sendall(header + payload)
 
 def recv_all(sock, n):
     dados = b""
@@ -48,7 +47,7 @@ def validar_readdevice(msg):
     if not msg.name_device:
         return "Faltando campos obrigatórios"
     if not msg.status and not msg.parametros:
-        return "Faltando campos obrigatórios":
+        return "Faltando campos obrigatórios"
     if msg.status not in ESTADOS_VALIDOS:
         return "Status do dispositivo inválido"
     return None
@@ -78,82 +77,192 @@ def criar_resposta_erro(comando, mensagem, detalhes=None):
     return resposta
 
 def getDevice(device_name):
-    dados = carregar_json()
+    dados = carregar_dispositivos()
     print("Dados carregados para leitura:", dados)
     nome_dispositivo = device_name
-
+    pos = -1
+    device = None
     print("Buscando dispositivo:", nome_dispositivo)
     for i, d in enumerate(dados.get("dispositivos", [])):
         if d["name_device"] == nome_dispositivo:
             device = d
+            pos = i
             break
-    return i, device
+    return pos, device
 
 
 def receive_info_device():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
     try:
         server_socket.bind(('localhost', PORTA))
-        server_socket.listen(5)
         print(f"Gateway (Python) rodando na porta {PORTA} aguardando Protobuf...")
 
         while True:
-            conn, addr = server_socket.accept()
+            conn, addr = server_socket.recvfrom(65535)
             print(f"Conexão de: {addr[0]}")
             
             try:
                 # Recebe ReadDevice com prefixo de tamanho
-                msg = receber_protobuf(conn, device_pb2.DeviceStateUpdateUpdate)
-                print(f"Recebido: {msg.device_name}")
+                msg = getProtobuf(conn, device_pb2.DeviceResponse)
+                print(f"Recebido: {msg}")
 
-                # Validação
-                erro = validar_readdevice(msg)
-                if erro:
-                    print("Erro de validação:", erro)
-                    continue
+                tipo = msg.WhichOneof("tipo")
+                print(f"Tipo de mensagem: {tipo}")
 
-                # Carrega dados existentes
-                dados = carregar_dispositivos()
-                dispositivos = dados.get("dispositivos", [])
-
-                # Cria novo dispositivo a partir do ReadDevice
-
-                # Substitui o dispositivo existente ou adiciona se não existir
-                atualizado = False
-                i, d = getDevice(msg.name_device)
-                if d is not None:
-                    if d.["status"] != msg.status:
-                        d["status"] = msg.status
-                    if d.parametros != dict(msg.parametros):
-                        d["parametros"] = dict(msg.parametros)
-                    atualizado = True
-                    print(f"Dispositivo {msg.name_device} atualizado")
-                if atualizado:
-                    # Salva dados completos (mantendo todos os outros intactos)
-                    dispositivos[i] = d
-                    dados["dispositivos"] = dispositivos
-                    salvar_dispositivos(dados)
-                    print(f"Dispositivo {msg.name_device} atualizado no arquivo de dados")
+                if tipo == "state":
+                    resposta = saveState(msg.state)
+                elif tipo == "info":
+                    resposta = saveInfo(msg.info)
+                elif tipo == "id":
+                    resposta = saveID(msg.id) 
                 else:
-                    print(f"Dispositivo {msg.name_device} não encontrado para atualização")
+                    resposta = device_pb2.CommandResponse()
+                    resposta.status = "error"
+                    resposta.message = "Protobuf inválido: tipo desconhecido"
+                    raise ValueError("Tipo de mensagem desconhecido")
+                print("Resposta gerada:", resposta)
+                response_payload = getPayload(resposta)
+                server_socket.sendto(response_payload, addr)
+            except ConnectionResetError as e:
+                print("Erro de conexão:", e)
+                server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                server_socket.bind(('localhost', PORTA))
             except Exception as e:
                 print("Erro:", e)
-                resposta_erro = criar_resposta_erro("save_device", str(e))
-                try:
-                    enviar_protobuf(conn, resposta_erro)
-                except:
-                    pass
-            finally:
-                conn.close()
-
     except KeyboardInterrupt:
         print("\nDesligando Gateway.")
     finally:
         server_socket.close()
 
-def setState(device_name, req: device_pb2.DeviceState) -> device_pb2.CommandResponse:
+def saveState(req: device_pb2.DeviceState) -> device_pb2.CommandResponse:
+    device_name = req.device_name
+    i, device = getDevice(device_name)
+    print(f"Dispositivo encontrado: {device}")
+
+    if device is not None:
+        print("Salvando estado no dispositivo...")
+
+        device["status"] = req.status
+        device["parametros"] = dict(req.parameters)
+        device["last_update"] = str(time.time())
+
+        resposta = saveDevice(i, device)
+        if resposta:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "ok"
+            msgReply.message = "Estado salvo com sucesso"
+            return msgReply
+        else:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "error"
+            msgReply.message = "Erro no salvamento do estado"
+            return msgReply
+    else:
+        msgReply = device_pb2.CommandResponse()
+        msgReply.status = "error"
+        msgReply.message = "Dispositivo não encontrado"
+        return msgReply
+
+def saveInfo(req: device_pb2.DeviceInfo) -> device_pb2.CommandResponse:
+    device_name = req.device_name
+    i, device = getDevice(device_name)
+    print(f"Dispositivo encontrado: {device}")
+
+    if device is not None:
+        print("Salvando info no dispositivo...")
+
+        device["ip_device"] = req.device_ip
+        device["port_device"] = req.device_port
+        device["type_device"] = req.device_type
+        device["name_device"] = req.device_name
+        device["status"] = req.status
+        device["parametros"] = dict(req.parametros)
+        device["last_update"] = str(time.time())
+
+        resposta = saveDevice(i, device)
+        if resposta:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "ok"
+            msgReply.message = "Info salva com sucesso"
+            return msgReply
+        else:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "error"
+            msgReply.message = "Erro no salvamento da info"
+            return msgReply
+    else:
+        dev = {
+            "name_device": req.device_name,
+            "ip_device": req.device_ip,
+            "port_device": req.device_port,
+            "type_device": req.device_type,
+            "status": req.status,
+            "parametros": dict(req.parametros),
+            "last_update": str(time.time())
+        }
+        resposta = saveNewDevice(dev)
+        if resposta:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "ok"
+            msgReply.message = "Info salva com sucesso [FIRST_TIME]"
+            return msgReply
+        else:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "error"
+            msgReply.message = "Erro no salvamento da info"
+            return msgReply
+
+def saveID(req: device_pb2.DeviceID) -> device_pb2.CommandResponse:
+    device_name = req.device_name
+    i, device = getDevice(device_name)
+    print(f"Dispositivo encontrado: {device}")
+
+    if device is not None:
+        print("Salvando ID no dispositivo...")
+
+        device["ip_device"] = req.device_ip
+        device["port_device"] = req.device_port
+        device["type_device"] = req.device_type
+        device["name_device"] = req.device_name
+        device["last_update"] = str(time.time())
+
+
+        resposta = saveDevice(i, device)
+        if resposta:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "ok"
+            msgReply.message = "ID salvo com sucesso"
+            return msgReply
+        else:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "error"
+            msgReply.message = "Erro no salvamento do ID"
+            return msgReply
+    else:
+        dev = {
+            "name_device": req.device_name,
+            "ip_device": req.device_ip,
+            "port_device": req.device_port,
+            "type_device": req.device_type,
+            "last_update": str(time.time())
+        }
+        resposta = saveNewDevice(dev)
+        if resposta:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "ok"
+            msgReply.message = "ID salva com sucesso [FIRST_TIME]"
+            return msgReply
+        else:
+            msgReply = device_pb2.CommandResponse()
+            msgReply.status = "error"
+            msgReply.message = "Erro no salvamento da id"
+            return msgReply
+
+def setState(req: device_pb2.DeviceState) -> device_pb2.CommandResponse:
+    device_name = req.device_name
     i, device = getDevice(device_name)
     print(f"Dispositivo encontrado: {device}")
 
@@ -168,13 +277,14 @@ def setState(device_name, req: device_pb2.DeviceState) -> device_pb2.CommandResp
         resposta = stub.SetState(req)
         print("Resposta do dispositivo:", resposta)
     else:
-        resposta = None
-        raise ValueError("IP ou porta do dispositivo não informados")
-
+        msgReply = device_pb2.CommandResponse()
+        msgReply.status = "error"
+        msgReply.message = "Dispositivo não encontrado"
+        return msgReply
     return resposta
 
 def getState(device_name) -> device_pb2.DeviceState:
-    dados = carregar_json()
+    dados = carregar_dispositivos()
     print("Dados carregados para leitura:", dados)
     nome_dispositivo = device_name
 
@@ -194,9 +304,35 @@ def getState(device_name) -> device_pb2.DeviceState:
         print("Resposta do dispositivo:", resposta)
     else:
         resposta = None
-        raise ValueError("IP ou porta do dispositivo não informados")
+        raise ValueError("Dispositivo não encontrado")
 
     return resposta
+
+def saveDevice(i, device):
+    dados = carregar_dispositivos()
+    dispositivos = dados.get("dispositivos", [])
+    dispositivos[i] = device
+    dados["dispositivos"] = dispositivos
+    try:
+        salvar_dispositivos(dados)
+        print(f"Dispositivo {device['name_device']} salvo no arquivo de dados")
+        return True
+    except Exception as e:
+        print(f"Erro ao salvar dispositivo {device['name_device']}: {e}")
+        return False
+
+def saveNewDevice(device):
+    dados = carregar_dispositivos()
+    dispositivos = dados.get("dispositivos", [])
+    dispositivos.append(device)
+    dados["dispositivos"] = dispositivos
+    try:
+        salvar_dispositivos(dados)
+        print(f"Dispositivo {device['name_device']} salvo no arquivo de dados")
+        return True
+    except Exception as e:
+        print(f"Erro ao salvar dispositivo {device['name_device']}: {e}")
+        return False
 
 if __name__ == "__main__":
     receive_info_device()

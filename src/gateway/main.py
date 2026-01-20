@@ -8,7 +8,7 @@ sys.path.append("../")
 # from func_gateway_request_device import enviar_requisicao_tcp as enviar_req_device
 from func_gateway_receive_client import socket_receiv_client_request_device
 from func_multcast_udp import multcast_broadcaster_udp
-from func_gateway_save_info import receive_info_device
+from device_listener import receive_info_device
 
 
 
@@ -19,7 +19,7 @@ def main():
     # Criando threads para cada função
     thread_broadcast = threading.Thread(
         target=multcast_broadcaster_udp, 
-        kwargs={"ip_gateway": "localhost", "port_gateway": "7895"}
+        kwargs={"ip_gateway": "localhost", "port_gateway": "58950"}
     )
     
     thread_receive_info = threading.Thread(target=receive_info_device)

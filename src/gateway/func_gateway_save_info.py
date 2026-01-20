@@ -7,7 +7,7 @@ import json
 ESTADOS_VALIDOS = ["ativo", "desligado", "ATIVO", "DESLIGADO"]
 TIPOS_VALIDOS = ["sensor", "atuador"]
 ARQUIVO_DADOS = "dados.json"
-PORTA = 78950
+PORTA = 58950
 
 def carregar_dispositivos():
     if not os.path.exists(ARQUIVO_DADOS):

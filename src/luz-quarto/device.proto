@@ -8,6 +8,14 @@ service DeviceService {
   rpc SetState(DeviceState) returns (CommandResponse);
 }
 
+message DeviceResponse {
+  oneof tipo {
+    DeviceState state = 1;
+    DeviceID id = 2;
+    DeviceInfo info = 3;
+  }
+}
+
 message DeviceInfo {
   string device_name = 1;
   string device_ip = 2;
@@ -18,8 +26,24 @@ message DeviceInfo {
 }
 
 message DeviceState {
-  string status = 1;       // ativo | desativado
-  map<string, string> parameters = 2;
+  string device_name = 1;
+  string status = 2;
+  map<string, string> parameters = 3;
+}
+
+message DeviceID {
+  string device_name = 1;
+  string device_ip = 2;
+  string device_port = 3;
+  string device_type = 5; // sensor | atuador
+}
+
+message Multicast {
+  string ip_gateway = 1;
+  string port_gateway = 2;
+  string broker_ip = 3;
+  string broker_port = 4;
+  string exchange_name = 5;
 }
 
 message CommandResponse {

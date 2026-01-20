@@ -4,9 +4,7 @@
     "port_device": 5003,
     "status": "ativo",
     "type_device": "atuador",
-    "parametros": [
-        {
+    "parametros": {
             "ligado": "nao"
-        }
-    ]
+    }
 }

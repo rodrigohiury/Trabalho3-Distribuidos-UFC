@@ -1,11 +1,14 @@
 import socket
 import time
 import json
+import device_pb2
+import device_pb2_grpc
+from device_listener import carregar_dispositivos, salvar_dispositivos
 
 
 def multcast_broadcaster_udp(
     ip_gateway="localhost",
-    port_gateway="7895",
+    port_gateway="58950",
     multicast_ip="224.1.1.1",
     multicast_port=5007,
     broker_ip="localhost",
@@ -39,7 +42,14 @@ def multcast_broadcaster_udp(
                 "exchange_name": exchange_name
             }
 
-            payload = json.dumps(msg).encode("utf-8")
+            msg = device_pb2.Multicast()
+            msg.ip_gateway = ip_gateway
+            msg.port_gateway = str(port_gateway)
+            msg.broker_ip = broker_ip
+            msg.broker_port = str(broker_port)
+            msg.exchange_name = exchange_name
+
+            payload = getPayload(msg)
 
             sock.sendto(payload, (multicast_ip, multicast_port))
 
@@ -49,11 +59,34 @@ def multcast_broadcaster_udp(
 
             time.sleep(interval_sec)
 
+            findLazyDevices()
+
     except KeyboardInterrupt:
         print("\nBroadcaster encerrado")
     finally:
         sock.close()
 
+def getPayload(mensagem):
+    payload = mensagem.SerializeToString()
+    return payload
+
+def getProtobuf(payload, classe):
+    msg = classe()
+    msg.ParseFromString(payload)
+    return msg
+
+def findLazyDevices():
+    data = carregar_dispositivos()
+    dispositivos = data.get("dispositivos", [])
+    alterado = False
+    for i, disp in enumerate(dispositivos):
+        if time.time() - float(disp["last_update"]) >= 10:
+            print(f"Dispositivo {disp['name_device']} está offline. Deletando.")
+            dispositivos.pop(i)
+            alterado = True
+    if alterado:
+        data["dispositivos"] = dispositivos
+        salvar_dispositivos(data)
 
 if __name__ == "__main__":
     multcast_broadcaster_udp()
